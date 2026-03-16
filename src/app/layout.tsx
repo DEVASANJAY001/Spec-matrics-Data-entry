@@ -30,6 +30,7 @@ export default function RootLayout({
 
                 <div className="hidden md:flex items-center gap-1">
                   <a href="/dashboard" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg transition-all">Dashboard</a>
+                  <a href="/explorer" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg transition-all">Data Explorer</a>
                   <a href="/entries" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg transition-all">Previous Entries</a>
                   <a href="/" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-lg transition-all">New Entry</a>
                 </div>

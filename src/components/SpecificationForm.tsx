@@ -5,6 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Save, RotateCcw, Image as ImageIcon, X, Loader2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from './Autocomplete';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 
 const INITIAL_FORM_STATE = {
     carModel: '',
@@ -96,11 +102,50 @@ export default function SpecificationForm() {
                 className="bg-white rounded-2xl sm:rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden"
             >
                 <div className="p-4 sm:p-6 lg:p-8">
-                    <header className="mb-4 sm:mb-6 border-b border-gray-50 pb-4">
-                        <h1 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight mb-1">
-                            New <span className="text-blue-600">Spec Entry</span>
-                        </h1>
-                        <p className="text-gray-400 text-[10px] sm:text-xs">Industrial master data generator.</p>
+                    <header className="mb-4 sm:mb-6 border-b border-gray-50 pb-4 flex items-start justify-between">
+                        <div>
+                            <h1 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight mb-1">
+                                New <span className="text-blue-600">Spec Entry</span>
+                            </h1>
+                            <p className="text-gray-400 text-[10px] sm:text-xs">Industrial master data generator.</p>
+                        </div>
+
+                        <div className="relative group/upload">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                            />
+                            <div className={cn(
+                                "w-10 h-10 sm:w-12 sm:h-12 rounded-xl border-2 border-dashed flex items-center justify-center transition-all",
+                                previewImage ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-200"
+                            )}>
+                                {previewImage ? (
+                                    <div className="relative w-full h-full p-1">
+                                        <img src={previewImage} alt="" className="w-full h-full object-cover rounded-lg" />
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setPreviewImage(null);
+                                                handleInputChange('imageUrl', '');
+                                            }}
+                                            className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-20 shadow-sm"
+                                        >
+                                            <X className="w-2.5 h-2.5" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <ImageIcon className="w-5 h-5 text-gray-400" />
+                                )}
+                            </div>
+                            {!previewImage && (
+                                <div className="absolute top-full mt-1 right-0 text-[8px] font-black text-gray-400 uppercase tracking-tighter whitespace-nowrap opacity-0 group-hover/upload:opacity-100 transition-opacity">
+                                    Attach Image
+                                </div>
+                            )}
+                        </div>
                     </header>
 
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -179,49 +224,6 @@ export default function SpecificationForm() {
                                 onChange={(e) => handleInputChange('spec', e.target.value)}
                                 required
                             />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Documentation Image</label>
-                            <div className="mt-1 flex justify-center px-4 py-6 border-2 border-gray-100 border-dashed rounded-xl bg-gray-50/50 hover:bg-blue-50/30 transition-all relative cursor-pointer">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                />
-
-                                <AnimatePresence mode="wait">
-                                    {previewImage ? (
-                                        <motion.div
-                                            key="preview"
-                                            initial={{ opacity: 0, scale: 0.98 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="relative w-full max-w-xs aspect-video rounded-lg overflow-hidden border border-gray-200"
-                                        >
-                                            <img src={previewImage} alt="Preview" className="w-full h-full object-contain bg-white" />
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setPreviewImage(null);
-                                                    handleInputChange('imageUrl', '');
-                                                }}
-                                                className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-black transition-colors z-20"
-                                            >
-                                                <X className="w-3.5 h-3.5" />
-                                            </button>
-                                        </motion.div>
-                                    ) : (
-                                        <div className="text-center">
-                                            <div className="mx-auto w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center shadow-sm mb-2">
-                                                <ImageIcon className="w-5 h-5 text-gray-400" />
-                                            </div>
-                                            <div className="text-[10px] sm:text-xs font-bold text-gray-400">Upload Image</div>
-                                        </div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
                         </div>
 
                         <div className="pt-2 flex flex-col sm:flex-row gap-2">

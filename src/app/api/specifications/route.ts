@@ -11,23 +11,31 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const query = searchParams.get('q');
+        const carModel = searchParams.get('carModel');
+        const variant = searchParams.get('variant');
+        const region = searchParams.get('region');
+        const code = searchParams.get('code');
 
         await dbConnect();
 
-        let filter = {};
+        let filter: any = {};
+
         if (query) {
-            filter = {
-                $or: [
-                    { 'Code': { $regex: query, $options: 'i' } },
-                    { 'Specification Details': { $regex: query, $options: 'i' } },
-                    { 'Car Model': { $regex: query, $options: 'i' } },
-                    { 'Variant': { $regex: query, $options: 'i' } },
-                    { 'Region': { $regex: query, $options: 'i' } },
-                    { 'Category': { $regex: query, $options: 'i' } },
-                    { 'Part Name': { $regex: query, $options: 'i' } }
-                ]
-            };
+            filter.$or = [
+                { 'Code': { $regex: query, $options: 'i' } },
+                { 'Specification Details': { $regex: query, $options: 'i' } },
+                { 'Car Model': { $regex: query, $options: 'i' } },
+                { 'Variant': { $regex: query, $options: 'i' } },
+                { 'Region': { $regex: query, $options: 'i' } },
+                { 'Category': { $regex: query, $options: 'i' } },
+                { 'Part Name': { $regex: query, $options: 'i' } }
+            ];
         }
+
+        if (carModel) filter['Car Model'] = carModel;
+        if (variant) filter['Variant'] = variant;
+        if (region) filter['Region'] = region;
+        if (code) filter['Code'] = { $regex: code, $options: 'i' };
 
         const specs = await Specification.find(filter)
             .sort({ createdAt: -1 })
