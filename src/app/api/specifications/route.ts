@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Specification from '@/lib/models/Specification';
-import '@/lib/models/CarModel';
-import '@/lib/models/Variant';
-import '@/lib/models/Region';
-import '@/lib/models/Category';
-import '@/lib/models/Part';
 
 export async function GET(request: Request) {
     try {

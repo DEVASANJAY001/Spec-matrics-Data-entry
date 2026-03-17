@@ -1,5 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Ensure all related models are registered to prevent "Schema hasn't been registered" errors
+import './CarModel';
+import './Variant';
+import './Region';
+import './Category';
+import './Part';
+
 export interface ISpecification extends Document {
     // References (for relational power)
     carModelId: mongoose.Types.ObjectId;
