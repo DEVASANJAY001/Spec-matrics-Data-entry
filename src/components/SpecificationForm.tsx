@@ -5,12 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Save, RotateCcw, Image as ImageIcon, X, Loader2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from './Autocomplete';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
+import { cn } from '@/lib/utils';
 
 const INITIAL_FORM_STATE = {
     carModel: '',
