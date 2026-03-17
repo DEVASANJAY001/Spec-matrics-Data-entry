@@ -242,7 +242,7 @@ export default function ExplorerPage() {
                                         </div>
                                     </div>
 
-                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 flex gap-2">
+                                    <div className="transition-opacity absolute top-4 right-4 flex gap-2">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
