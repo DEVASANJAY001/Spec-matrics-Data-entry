@@ -47,13 +47,16 @@ export default function RootLayout({
             <div className="flex justify-between h-16 items-center">
               <div className="flex items-center gap-8">
                 <a href="/" className="flex items-center gap-3 group cursor-pointer">
-                  <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-white font-black text-xl group-hover:scale-110 transition-transform shadow-lg shadow-gray-200">
-                    S
-                  </div>
-                  <span className="text-xl font-bold text-gray-900 tracking-tight">
-                    Spec Matrix
-                  </span>
-                </a>
+  <img
+    src="/1773771277027.png"
+    alt="Spec Matrix Logo"
+    className="w-10 h-10 rounded-xl object-cover group-hover:scale-110 transition-transform shadow-lg shadow-gray-200"
+  />
+
+  <span className="text-xl font-bold text-gray-900 tracking-tight">
+    Spec Matrix
+  </span>
+</a>
 
                 <div className="hidden md:flex items-center gap-1">
                   {navLinks.map((link) => (
