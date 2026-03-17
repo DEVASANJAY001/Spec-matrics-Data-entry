@@ -137,7 +137,10 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
                 }),
             });
 
-            if (!res.ok) throw new Error('Failed to save specification');
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to save specification');
+            }
 
             toast.success(editId ? 'Updated successfully!' : 'Saved successfully!', { id: loadingToast });
 

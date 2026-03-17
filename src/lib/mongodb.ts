@@ -30,9 +30,9 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 2000, // 2 seconds
-      connectTimeoutMS: 2000,
-      socketTimeoutMS: 2000,
+      serverSelectionTimeoutMS: 10000, // 10 seconds
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
       family: 4, // Force IPv4 to avoid IPv6 DNS hangs
     };
 
