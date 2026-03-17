@@ -1,11 +1,17 @@
 "use client";
 
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MoreVertical, X, LayoutDashboard, FileSearch, History, PlusCircle } from "lucide-react";
+import {
+  MoreVertical,
+  X,
+  LayoutDashboard,
+  FileSearch,
+  History,
+  PlusCircle,
+} from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,15 +23,25 @@ export default function RootLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Data Explorer', href: '/explorer', icon: FileSearch },
-    { name: 'Previous Entries', href: '/entries', icon: History },
-    { name: 'New Entry', href: '/', icon: PlusCircle },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Data Explorer", href: "/explorer", icon: FileSearch },
+    { name: "Previous Entries", href: "/entries", icon: History },
+    { name: "New Entry", href: "/", icon: PlusCircle },
   ];
 
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased selection:bg-blue-100 selection:text-blue-900`}>
+      <head>
+        <title>Spec Matrix</title>
+        <meta name="description" content="Spec Matrix Data Entry Application" />
+        <link rel="icon" href="/1773771277027.png" />
+        <link rel="shortcut icon" href="/1773771277027.png" />
+        <link rel="apple-touch-icon" href="/1773771277027.png" />
+      </head>
+
+      <body
+        className={`${inter.className} antialiased selection:bg-blue-100 selection:text-blue-900`}
+      >
         <nav className="sticky top-0 z-[60] w-full border-b border-gray-100 bg-white/80 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
@@ -34,7 +50,9 @@ export default function RootLayout({
                   <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-white font-black text-xl group-hover:scale-110 transition-transform shadow-lg shadow-gray-200">
                     S
                   </div>
-                  <span className="text-xl font-bold text-gray-900 tracking-tight">Spec Matrix</span>
+                  <span className="text-xl font-bold text-gray-900 tracking-tight">
+                    Spec Matrix
+                  </span>
                 </a>
 
                 <div className="hidden md:flex items-center gap-1">
@@ -58,7 +76,6 @@ export default function RootLayout({
                   </span>
                 </div>
 
-                {/* Mobile Menu Toggle */}
                 <button
                   onClick={() => setIsMobileMenuOpen(true)}
                   className="md:hidden p-2 text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
@@ -74,7 +91,6 @@ export default function RootLayout({
           </div>
         </nav>
 
-        {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
@@ -86,14 +102,16 @@ export default function RootLayout({
                 className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] md:hidden"
               />
               <motion.div
-                initial={{ x: '100%' }}
+                initial={{ x: "100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
                 className="fixed right-0 top-0 bottom-0 w-[280px] bg-white z-[101] md:hidden shadow-2xl p-6"
               >
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Navigation</span>
+                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                    Navigation
+                  </span>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
@@ -118,9 +136,15 @@ export default function RootLayout({
 
                 <div className="absolute bottom-10 left-6 right-6">
                   <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Session Identity</div>
-                    <div className="text-sm font-black text-gray-900 mb-0.5">Admin User</div>
-                    <div className="text-[10px] text-blue-600 font-bold">Standard Access Level</div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                      Session Identity
+                    </div>
+                    <div className="text-sm font-black text-gray-900 mb-0.5">
+                      Admin User
+                    </div>
+                    <div className="text-[10px] text-blue-600 font-bold">
+                      Standard Access Level
+                    </div>
                   </div>
                 </div>
               </motion.div>
