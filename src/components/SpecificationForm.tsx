@@ -4,7 +4,8 @@ import { Save, RotateCcw, Image as ImageIcon, X, Loader2, Clipboard } from 'luci
 import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from './Autocomplete';
 import { cn } from '@/lib/utils';
-import { useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const INITIAL_FORM_STATE = {
     carModel: '',
