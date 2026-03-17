@@ -1,6 +1,6 @@
 'use client';
 
-import { Save, RotateCcw, Image as ImageIcon, X, Loader2, Clipboard } from 'lucide-react';
+import { Save, RotateCcw, Image as ImageIcon, X, Loader2, Clipboard, Camera, FileImage } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from './Autocomplete';
 import { cn } from '@/lib/utils';
@@ -174,30 +174,81 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
                 className="bg-white rounded-2xl sm:rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden"
             >
                 <div className="p-4 sm:p-6 lg:p-8">
-                    <header className="mb-4 sm:mb-6 border-b border-gray-50 pb-4 flex items-start justify-between">
-                        <div>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1">
                             <h1 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight mb-1">
                                 {editId ? 'Edit' : 'New'} <span className="text-blue-600">Spec Entry</span>
                             </h1>
-                            <p className="text-gray-400 text-[10px] sm:text-xs">
+                            <p className="text-gray-400 text-[10px] sm:text-xs mb-4">
                                 {editId ? 'Modify existing data entry.' : 'Industrial master data generator.'}
                             </p>
+
+                            <div className="flex flex-wrap gap-2">
+                                {/* Capture Button */}
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        capture="environment"
+                                        onChange={handleImageChange}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                        title="Capture Photo"
+                                    />
+                                    <button type="button" className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all border border-blue-100">
+                                        <Camera className="w-3.5 h-3.5" />
+                                        Capture
+                                    </button>
+                                </div>
+
+                                {/* Gallery Button */}
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                        title="Select from Gallery"
+                                    />
+                                    <button type="button" className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100">
+                                        <FileImage className="w-3.5 h-3.5" />
+                                        Gallery
+                                    </button>
+                                </div>
+
+                                {/* Dedicated Paste Input Box */}
+                                <div className="flex-1 min-w-[150px]">
+                                    <div className="relative group/paste">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            placeholder="Paste Photo Here..."
+                                            className="w-full px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-amber-600 placeholder:text-amber-400 outline-none focus:ring-4 focus:ring-amber-500/10 transition-all cursor-text pr-10"
+                                            onPaste={(e) => {
+                                                // This handles local paste on the input specifically
+                                                const items = e.clipboardData?.items;
+                                                if (!items) return;
+                                                for (let i = 0; i < items.length; i++) {
+                                                    if (items[i].type.indexOf('image') !== -1) {
+                                                        const blob = items[i].getAsFile();
+                                                        if (blob) handleImageChange(blob);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                        <Clipboard className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-amber-500 pointer-events-none" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="relative group/upload">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                            />
+                        <div className="relative group/upload shrink-0">
                             <div className={cn(
-                                "w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-dashed flex items-center justify-center transition-all",
+                                "w-20 h-20 sm:w-28 sm:h-28 rounded-3xl border-2 border-dashed flex items-center justify-center transition-all overflow-hidden",
                                 previewImage ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-200"
                             )}>
                                 {previewImage ? (
-                                    <div className="relative w-full h-full p-2">
-                                        <img src={previewImage} alt="" className="w-full h-full object-cover rounded-xl" />
+                                    <div className="relative w-full h-full">
+                                        <img src={previewImage} alt="" className="w-full h-full object-cover" />
                                         <button
                                             type="button"
                                             onClick={(e) => {
@@ -205,27 +256,20 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
                                                 setPreviewImage(null);
                                                 handleInputChange('imageUrl', '');
                                             }}
-                                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-20 shadow-lg border-2 border-white"
+                                            className="absolute top-1.5 right-1.5 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-20 shadow-lg border-2 border-white"
                                         >
                                             <X className="w-3 h-3" />
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-                                        <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
-                                        <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Add Image</span>
+                                    <div className="flex flex-col items-center gap-1.5 p-4 text-center">
+                                        <ImageIcon className="w-8 h-8 text-gray-200" />
+                                        <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest leading-tight">No Preview</span>
                                     </div>
                                 )}
                             </div>
-                            {!previewImage && (
-                                <div className="absolute top-full mt-2 right-0 flex flex-col items-end">
-                                    <div className="text-[9px] font-black text-blue-600 uppercase tracking-tighter whitespace-nowrap opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center gap-1">
-                                        <Clipboard className="w-2.5 h-2.5" /> Ctrl+V to Paste
-                                    </div>
-                                </div>
-                            )}
                         </div>
-                    </header>
+                    </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
