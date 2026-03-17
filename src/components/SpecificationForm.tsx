@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Save, RotateCcw, Image as ImageIcon, X, Loader2 } from 'lucide-react';
+import { Save, RotateCcw, Image as ImageIcon, X, Loader2, Clipboard } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from './Autocomplete';
 import { cn } from '@/lib/utils';
+import { useEffect, useCallback } from 'react';
 
 const INITIAL_FORM_STATE = {
     carModel: '',
@@ -18,17 +17,56 @@ const INITIAL_FORM_STATE = {
     imageUrl: '',
 };
 
-export default function SpecificationForm() {
+interface SpecificationFormProps {
+    editId?: string;
+    onSuccess?: () => void;
+}
+
+export default function SpecificationForm({ editId, onSuccess }: SpecificationFormProps) {
     const [formData, setFormData] = useState(INITIAL_FORM_STATE);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+    // Fetch data if in edit mode
+    useEffect(() => {
+        if (editId) {
+            const fetchData = async () => {
+                setIsLoadingData(true);
+                try {
+                    const res = await fetch(`/api/specifications/${editId}`);
+                    if (!res.ok) throw new Error('Failed to fetch specification');
+                    const data = await res.json();
+
+                    const mappedData = {
+                        carModel: data['Car Model'] || '',
+                        variant: data['Variant'] || '',
+                        region: data['Region'] || '',
+                        code: data['Code'] || '',
+                        partName: data['Part Name'] || '',
+                        category: data['Category'] || '',
+                        spec: data['Specification Details'] || '',
+                        imageUrl: data['Documentation Image'] || '',
+                    };
+
+                    setFormData(mappedData);
+                    setPreviewImage(data['Documentation Image'] || null);
+                } catch (error) {
+                    toast.error('Error loading entry');
+                } finally {
+                    setIsLoadingData(false);
+                }
+            };
+            fetchData();
+        }
+    }, [editId]);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement> | File) => {
+        const file = e instanceof File ? e : e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -39,6 +77,27 @@ export default function SpecificationForm() {
             reader.readAsDataURL(file);
         }
     };
+
+    // Global Paste Handler
+    const handlePaste = useCallback((e: ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    handleImageChange(blob);
+                    toast.success('Image pasted from clipboard!');
+                }
+            }
+        }
+    }, [formData]);
+
+    useEffect(() => {
+        window.addEventListener('paste', handlePaste);
+        return () => window.removeEventListener('paste', handlePaste);
+    }, [handlePaste]);
 
     const resetForm = () => {
         setFormData(INITIAL_FORM_STATE);
@@ -62,11 +121,14 @@ export default function SpecificationForm() {
         if (!validate()) return;
 
         setIsSubmitting(true);
-        const loadingToast = toast.loading('Saving specification...');
+        const loadingToast = toast.loading(editId ? 'Updating...' : 'Saving...');
 
         try {
-            const res = await fetch('/api/specifications/create', {
-                method: 'POST',
+            const url = editId ? `/api/specifications/${editId}` : '/api/specifications/create';
+            const method = editId ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
@@ -76,9 +138,14 @@ export default function SpecificationForm() {
 
             if (!res.ok) throw new Error('Failed to save specification');
 
-            toast.success('Specification saved successfully!', { id: loadingToast });
-            setFormData(INITIAL_FORM_STATE);
-            setPreviewImage(null);
+            toast.success(editId ? 'Updated successfully!' : 'Saved successfully!', { id: loadingToast });
+
+            if (!editId) {
+                setFormData(INITIAL_FORM_STATE);
+                setPreviewImage(null);
+            }
+
+            if (onSuccess) onSuccess();
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Something went wrong';
             toast.error(message, { id: loadingToast });
@@ -86,6 +153,15 @@ export default function SpecificationForm() {
             setIsSubmitting(false);
         }
     };
+
+    if (isLoadingData) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 text-gray-400">
+                <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                <span className="font-bold text-xs uppercase tracking-widest">Loading for Edit...</span>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-2xl mx-auto py-2 sm:py-6 px-2 sm:px-4">
@@ -100,9 +176,11 @@ export default function SpecificationForm() {
                     <header className="mb-4 sm:mb-6 border-b border-gray-50 pb-4 flex items-start justify-between">
                         <div>
                             <h1 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight mb-1">
-                                New <span className="text-blue-600">Spec Entry</span>
+                                {editId ? 'Edit' : 'New'} <span className="text-blue-600">Spec Entry</span>
                             </h1>
-                            <p className="text-gray-400 text-[10px] sm:text-xs">Industrial master data generator.</p>
+                            <p className="text-gray-400 text-[10px] sm:text-xs">
+                                {editId ? 'Modify existing data entry.' : 'Industrial master data generator.'}
+                            </p>
                         </div>
 
                         <div className="relative group/upload">
@@ -139,8 +217,10 @@ export default function SpecificationForm() {
                                 )}
                             </div>
                             {!previewImage && (
-                                <div className="absolute top-full mt-2 right-0 text-[9px] font-black text-blue-600 uppercase tracking-tighter whitespace-nowrap opacity-0 group-hover/upload:opacity-100 transition-opacity">
-                                    Click to Upload
+                                <div className="absolute top-full mt-2 right-0 flex flex-col items-end">
+                                    <div className="text-[9px] font-black text-blue-600 uppercase tracking-tighter whitespace-nowrap opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center gap-1">
+                                        <Clipboard className="w-2.5 h-2.5" /> Ctrl+V to Paste
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -176,19 +256,14 @@ export default function SpecificationForm() {
                                 required
                             />
 
-                            <div className="flex flex-col gap-1">
-                                <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
-                                    Code <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="FR-BMP-01"
-                                    className="w-full px-3 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-xs sm:text-sm placeholder:text-gray-300 text-gray-900"
-                                    value={formData.code}
-                                    onChange={(e) => handleInputChange('code', e.target.value)}
-                                    required
-                                />
-                            </div>
+                            <Autocomplete
+                                label="Code"
+                                placeholder="FR-BMP-01"
+                                apiUrl="/api/codes/search"
+                                value={formData.code}
+                                onChange={(val) => handleInputChange('code', val)}
+                                required
+                            />
 
                             <Autocomplete
                                 label="Category"
@@ -231,7 +306,7 @@ export default function SpecificationForm() {
                                 className="flex-[2] flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all disabled:opacity-50"
                             >
                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                Save Entry
+                                {editId ? 'Update Entry' : 'Save Entry'}
                             </button>
 
                             <button

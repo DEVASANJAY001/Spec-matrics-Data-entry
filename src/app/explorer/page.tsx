@@ -9,19 +9,20 @@ import {
     X,
     FileSearch,
     Calendar,
-    ChevronRight,
-    LayoutGrid,
-    Table as TableIcon,
-    Download,
-    RefreshCw
+    RefreshCw,
+    MoreVertical,
+    Trash2
 } from 'lucide-react';
 import Autocomplete from '@/components/Autocomplete';
+import SpecificationForm from '@/components/SpecificationForm';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function ExplorerPage() {
     const [entries, setEntries] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
+    const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
     // Filters
     const [filters, setFilters] = useState({
@@ -66,8 +67,23 @@ export default function ExplorerPage() {
         setFilters(prev => ({ ...prev, [field]: value }));
     };
 
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this entry?')) return;
+
+        const loadingToast = toast.loading('Deleting...');
+        try {
+            const res = await fetch(`/api/specifications/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete');
+            toast.success('Entry deleted', { id: loadingToast });
+            fetchEntries();
+        } catch (error: any) {
+            toast.error(error.message, { id: loadingToast });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
+            <Toaster position="top-right" />
             {/* Header */}
             <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
                 <div className="max-w-[1600px] mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
@@ -107,7 +123,7 @@ export default function ExplorerPage() {
                                 placeholder="Search model..."
                                 apiUrl="/api/carmodels/search"
                                 value={filters.carModel}
-                                onChange={(val) => handleFilterChange('carModel', val)}
+                                onChange={(val: string) => handleFilterChange('carModel', val)}
                             />
 
                             <Autocomplete
@@ -115,7 +131,7 @@ export default function ExplorerPage() {
                                 placeholder="Search variant..."
                                 apiUrl="/api/variants/search"
                                 value={filters.variant}
-                                onChange={(val) => handleFilterChange('variant', val)}
+                                onChange={(val: string) => handleFilterChange('variant', val)}
                                 extraParams={{ carModel: filters.carModel }}
                             />
 
@@ -124,7 +140,7 @@ export default function ExplorerPage() {
                                 placeholder="Search region..."
                                 apiUrl="/api/regions/search"
                                 value={filters.region}
-                                onChange={(val) => handleFilterChange('region', val)}
+                                onChange={(val: string) => handleFilterChange('region', val)}
                             />
 
                             <div className="flex flex-col gap-1.5">
@@ -150,7 +166,6 @@ export default function ExplorerPage() {
                         </div>
                     </div>
 
-                    {/* Stats Widget */}
                     <div className="bg-gray-900 rounded-3xl p-6 text-white shadow-xl shadow-gray-200">
                         <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Found Entries</div>
                         <div className="text-3xl font-black">{entries.length}</div>
@@ -160,7 +175,6 @@ export default function ExplorerPage() {
                     </div>
                 </div>
 
-                {/* Main Content Area */}
                 <div className="flex-1 min-w-0">
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -213,7 +227,7 @@ export default function ExplorerPage() {
                                     <h3 className="text-sm font-black text-gray-900 mb-1 leading-tight line-clamp-1">
                                         {entry['Car Model'] || entry.carModel}
                                     </h3>
-                                    <p className="text-[11px] font-bold text-blue-600 mb-4 tracking-tight line-clamp-1">
+                                    <p className="text-blue-600 text-[11px] font-bold mb-4 tracking-tight line-clamp-1">
                                         {entry['Variant'] || entry.variant}
                                     </p>
 
@@ -228,12 +242,31 @@ export default function ExplorerPage() {
                                         </div>
                                     </div>
 
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 flex gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingEntryId(entry._id);
+                                            }}
+                                            className="p-2 bg-amber-500 text-white rounded-lg shadow-lg"
+                                        >
+                                            <MoreVertical className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(entry._id);
+                                            }}
+                                            className="p-2 bg-red-500 text-white rounded-lg shadow-lg"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+
                                     <div className="flex items-center gap-1.5 pt-4 border-t border-gray-50 text-gray-400">
                                         <Calendar className="w-3 h-3" />
                                         <span className="text-[9px] font-bold">{new Date(entry.createdAt).toLocaleDateString()}</span>
                                     </div>
-
-                                    {/* Glass Accent */}
                                     <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
                                 </motion.div>
                             ))}
@@ -242,7 +275,6 @@ export default function ExplorerPage() {
                 </div>
             </div>
 
-            {/* Detail Modal */}
             <AnimatePresence>
                 {selectedEntry && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
@@ -302,7 +334,7 @@ export default function ExplorerPage() {
                                         <div className="text-[10px] text-gray-500 font-bold truncate">{selectedEntry['Category'] || selectedEntry.category}</div>
                                     </div>
                                     <div className="p-5 bg-gray-50 rounded-[2rem] border border-gray-100">
-                                        <div className="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Region</div>
+                                        <div className="text-[9px] font-bold text-gray-400 uppercase mb-1 tracking-widest">Region</div>
                                         <div className="font-black text-gray-900 text-sm mb-0.5">{selectedEntry['Region'] || selectedEntry.region}</div>
                                         <div className="text-[10px] text-gray-500 font-bold tracking-tight">Global Standard</div>
                                     </div>
@@ -319,6 +351,67 @@ export default function ExplorerPage() {
                                         {selectedEntry['Specification Details'] || selectedEntry.spec}
                                     </div>
                                 </div>
+
+                                <div className="mt-10 pt-8 border-t border-gray-50 flex gap-3">
+                                    <button
+                                        onClick={() => {
+                                            const id = selectedEntry._id;
+                                            setSelectedEntry(null);
+                                            setEditingEntryId(id);
+                                        }}
+                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gray-900 text-white rounded-3xl font-black text-xs hover:bg-black transition-all shadow-xl shadow-gray-200"
+                                    >
+                                        Edit Entry
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const id = selectedEntry._id;
+                                            handleDelete(id);
+                                            setSelectedEntry(null);
+                                        }}
+                                        className="px-6 py-4 bg-red-50 text-red-600 rounded-3xl font-black text-xs hover:bg-red-100 transition-all border border-red-100"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {editingEntryId && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setEditingEntryId(null)}
+                            className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="relative bg-[#F8FAFC] w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto"
+                        >
+                            <div className="sticky top-0 right-0 p-6 flex justify-end z-[110]">
+                                <button
+                                    onClick={() => setEditingEntryId(null)}
+                                    className="p-3 bg-white/80 backdrop-blur-md text-gray-500 rounded-full hover:bg-white hover:text-gray-900 shadow-sm transition-all"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+                            <div className="-mt-16">
+                                <SpecificationForm
+                                    editId={editingEntryId}
+                                    onSuccess={() => {
+                                        setEditingEntryId(null);
+                                        fetchEntries();
+                                    }}
+                                />
                             </div>
                         </motion.div>
                     </div>
