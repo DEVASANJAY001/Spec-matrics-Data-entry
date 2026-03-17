@@ -113,12 +113,12 @@ export default function SpecificationForm() {
                                 className="absolute inset-0 opacity-0 cursor-pointer z-10"
                             />
                             <div className={cn(
-                                "w-10 h-10 sm:w-12 sm:h-12 rounded-xl border-2 border-dashed flex items-center justify-center transition-all",
+                                "w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-dashed flex items-center justify-center transition-all",
                                 previewImage ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-200"
                             )}>
                                 {previewImage ? (
-                                    <div className="relative w-full h-full p-1">
-                                        <img src={previewImage} alt="" className="w-full h-full object-cover rounded-lg" />
+                                    <div className="relative w-full h-full p-2">
+                                        <img src={previewImage} alt="" className="w-full h-full object-cover rounded-xl" />
                                         <button
                                             type="button"
                                             onClick={(e) => {
@@ -126,18 +126,21 @@ export default function SpecificationForm() {
                                                 setPreviewImage(null);
                                                 handleInputChange('imageUrl', '');
                                             }}
-                                            className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-20 shadow-sm"
+                                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-20 shadow-lg border-2 border-white"
                                         >
-                                            <X className="w-2.5 h-2.5" />
+                                            <X className="w-3 h-3" />
                                         </button>
                                     </div>
                                 ) : (
-                                    <ImageIcon className="w-5 h-5 text-gray-400" />
+                                    <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+                                        <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                                        <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Add Image</span>
+                                    </div>
                                 )}
                             </div>
                             {!previewImage && (
-                                <div className="absolute top-full mt-1 right-0 text-[8px] font-black text-gray-400 uppercase tracking-tighter whitespace-nowrap opacity-0 group-hover/upload:opacity-100 transition-opacity">
-                                    Attach Image
+                                <div className="absolute top-full mt-2 right-0 text-[9px] font-black text-blue-600 uppercase tracking-tighter whitespace-nowrap opacity-0 group-hover/upload:opacity-100 transition-opacity">
+                                    Click to Upload
                                 </div>
                             )}
                         </div>
