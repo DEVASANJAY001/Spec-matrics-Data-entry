@@ -11,6 +11,7 @@ import {
   FileSearch,
   History,
   PlusCircle,
+  ClipboardCheck
 } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,12 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const navLinks = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Data Explorer", href: "/explorer", icon: FileSearch },
-    { name: "Previous Entries", href: "/entries", icon: History },
-    { name: "New Entry", href: "/", icon: PlusCircle },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Spec Check List', href: '/checklist', icon: ClipboardCheck },
+    { name: 'Inspection Logs', href: '/inspections', icon: History },
+    { name: 'Master Data', href: '/entries', icon: FileSearch },
+    { name: 'New Entry', href: '/', icon: PlusCircle },
   ];
 
   return (
@@ -47,16 +48,11 @@ export default function RootLayout({
             <div className="flex justify-between h-16 items-center">
               <div className="flex items-center gap-8">
                 <a href="/" className="flex items-center gap-3 group cursor-pointer">
-  <img
-    src="/1773771277027.png"
-    alt="Spec Matrix Logo"
-    className="w-10 h-10 rounded-xl object-cover group-hover:scale-110 transition-transform shadow-lg shadow-gray-200"
-  />
-
-  <span className="text-xl font-bold text-gray-900 tracking-tight">
-    Spec Matrix
-  </span>
-</a>
+                  <div className="w-10 h-10 rounded-xl overflow-hidden group-hover:scale-110 transition-transform shadow-lg shadow-gray-200 bg-gray-900 border border-gray-800">
+                    <img src="/1773771277027.png" alt="Spec Matrix Logo" className="w-full h-full object-cover" />
+                  </div>
+                  <span className="text-xl font-bold text-gray-900 tracking-tight">Spec Matrix</span>
+                </a>
 
                 <div className="hidden md:flex items-center gap-1">
                   {navLinks.map((link) => (

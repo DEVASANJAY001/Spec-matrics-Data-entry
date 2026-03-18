@@ -13,7 +13,8 @@ import {
     ChevronRight,
     Search,
     AlertTriangle,
-    RefreshCw
+    RefreshCw,
+    ClipboardCheck
 } from 'lucide-react';
 
 interface Stats {
@@ -92,6 +93,18 @@ export default function DashboardPage() {
         { title: 'Part Records', value: data?.stats.totalParts, icon: Settings, color: 'bg-emerald-500' },
     ];
 
+    const formatDuration = (s: number) => {
+        if (!s) return '0s';
+        if (s > 60) return `${Math.floor(s / 60)}m ${s % 60}s`;
+        return `${s}s`;
+    };
+
+    const todayCards = [
+        { title: "Today's Vehicles", value: data?.stats.todayVehicleCount || 0, icon: Car, color: 'bg-blue-600' },
+        { title: "Today's Inspections", value: data?.stats.todayInspectionCount || 0, icon: ClipboardCheck, color: 'bg-emerald-600' },
+        { title: "Avg Insp. Time", value: formatDuration(data?.stats.avgInspectionTime || 0), icon: Clock, color: 'bg-purple-600' },
+    ];
+
     return (
         <main className="min-h-screen bg-[#F8FAFC] py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto space-y-6">
@@ -126,6 +139,29 @@ export default function DashboardPage() {
                             </div>
                             <div className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{card.title}</div>
                             <div className="text-xl sm:text-2xl font-black text-gray-900">{card.value}</div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* Daily Stats Grid */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-2 mb-6">
+                    {todayCards.map((card, i) => (
+                        <motion.div
+                            key={card.title}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            className="bg-gray-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-lg border border-gray-800 text-center sm:text-left flex flex-col justify-between"
+                        >
+                            <div className="flex items-center justify-center sm:justify-start mb-2">
+                                <div className={`${card.color} w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-sm`}>
+                                    <card.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[9px] sm:text-[10px] font-black text-gray-400 border-b border-gray-800 pb-1 mb-1 uppercase tracking-widest truncate">{card.title}</div>
+                                <div className="text-xl sm:text-2xl font-black text-white">{card.value}</div>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
@@ -167,33 +203,54 @@ export default function DashboardPage() {
                     </motion.div>
 
                     {/* Quick Access */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 flex flex-col justify-start">
                         <motion.div
                             initial={{ opacity: 0, x: 10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl text-white space-y-3"
+                            className="bg-blue-600 p-5 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden group"
                         >
-                            <h3 className="text-base font-bold text-blue-400">Search Core</h3>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Part or code..."
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-600 transition-all font-medium"
-                                />
-                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
-                            </div>
-                        </motion.div>
-
-                        <div className="bg-blue-600 p-5 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden group">
                             <div className="relative z-10 space-y-1">
-                                <h3 className="text-base font-bold">New Build?</h3>
-                                <p className="text-blue-100 text-[10px] opacity-70">Define next-gen master data.</p>
+                                <h3 className="text-base font-bold">Plant Inspection Report</h3>
+                                <p className="text-blue-100 text-[10px] opacity-70">Review completed vehicle checklists.</p>
                                 <div className="pt-2">
-                                    <a href="/" className="inline-block bg-white text-blue-600 px-4 py-1.5 rounded-lg font-black text-xs shadow-lg active:scale-95 transition-all">Launch</a>
+                                    <a href="/inspections" className="inline-block bg-white text-blue-600 px-4 py-1.5 rounded-lg font-black text-xs shadow-lg active:scale-95 transition-all">View Reports</a>
                                 </div>
                             </div>
-                            <LayoutDashboard className="absolute -bottom-4 -right-4 w-24 h-24 text-white/10 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" />
-                        </div>
+                            <FileText className="absolute -bottom-4 -right-4 w-24 h-24 text-white/10 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" />
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="bg-emerald-600 p-5 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden group"
+                        >
+                            <div className="relative z-10 space-y-1">
+                                <h3 className="text-base font-bold">Operator Portal</h3>
+                                <p className="text-emerald-100 text-[10px] opacity-70">Start real-time spec checklist.</p>
+                                <div className="pt-2">
+                                    <a href="/checklist" className="inline-block bg-white text-emerald-600 px-4 py-1.5 rounded-lg font-black text-xs shadow-lg active:scale-95 transition-all">Start Portal</a>
+                                </div>
+                            </div>
+                            <ClipboardCheck className="absolute -bottom-4 -right-4 w-24 h-24 text-white/10 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" />
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden group"
+                        >
+                            <div className="relative z-10 space-y-1">
+                                <h3 className="text-base font-bold text-gray-100">Master Data Base</h3>
+                                <p className="text-gray-400 text-[10px] opacity-80">Configure variants and parts.</p>
+                                <div className="pt-2">
+                                    <a href="/entries" className="inline-block bg-white text-gray-900 px-4 py-1.5 rounded-lg font-black text-xs shadow-lg active:scale-95 transition-all">Manage Data</a>
+                                </div>
+                            </div>
+                            <Settings className="absolute -bottom-4 -right-4 w-24 h-24 text-white/5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" />
+                        </motion.div>
+
                     </div>
                 </div>
             </div>

@@ -10,11 +10,13 @@ import {
     Calendar,
     X,
     FileSearch,
-    AlertTriangle
+    AlertTriangle,
+    ClipboardCheck
 } from 'lucide-react';
 
 import SpecificationForm from '@/components/SpecificationForm';
 import toast, { Toaster } from 'react-hot-toast';
+import { History } from 'lucide-react';
 
 export default function EntriesPage() {
     const [entries, setEntries] = useState<any[]>([]);
@@ -23,10 +25,26 @@ export default function EntriesPage() {
     const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
     const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [recentEntries, setRecentEntries] = useState<any[]>([]);
+    const [isLoadingRecent, setIsLoadingRecent] = useState(true);
 
     useEffect(() => {
         fetchEntries();
+        fetchRecent();
     }, []);
+
+    const fetchRecent = async () => {
+        setIsLoadingRecent(true);
+        try {
+            const res = await fetch('/api/specifications?limit=10');
+            const data = await res.json();
+            if (Array.isArray(data)) setRecentEntries(data);
+        } catch (e) {
+            console.error('Failed to fetch recent:', e);
+        } finally {
+            setIsLoadingRecent(false);
+        }
+    };
 
     const fetchEntries = async (q = '') => {
         setIsLoading(true);
@@ -62,6 +80,7 @@ export default function EntriesPage() {
             if (!res.ok) throw new Error('Failed to delete');
             toast.success('Entry deleted', { id: loadingToast });
             fetchEntries(search);
+            fetchRecent();
         } catch (error: any) {
             toast.error(error.message, { id: loadingToast });
         }
@@ -70,133 +89,217 @@ export default function EntriesPage() {
     return (
         <main className="min-h-screen bg-[#F8FAFC] py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
             <Toaster position="top-right" />
-            <div className="max-w-6xl mx-auto space-y-5">
-                <header className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Logs</h1>
-                        <p className="text-gray-500 text-xs sm:text-sm">Manage master data entries.</p>
+            <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-blue-600">
+                            <History className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Logs</h1>
+                            <p className="text-gray-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Master Data Management</p>
+                        </div>
                     </div>
 
-                    <form onSubmit={handleSearch} className="flex gap-2 w-full md:w-auto">
-                        <div className="relative flex-1 md:w-64">
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <form onSubmit={handleSearch} className="relative flex-1 sm:w-64">
                             <input
                                 type="text"
-                                placeholder="Search..."
-                                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-xs"
+                                placeholder="Quick Search..."
+                                className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all text-xs font-bold"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
-                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                        </form>
+                        <div className="flex gap-2">
+                            <a href="/checklist" className="flex-1 sm:flex-none px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 active:scale-95">
+                                <ClipboardCheck className="w-4 h-4" />
+                                Start Inspection
+                            </a>
+                            <button onClick={handleSearch} className="px-6 py-3 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all active:scale-95">
+                                Filter
+                            </button>
                         </div>
-                        <button type="submit" className="px-4 py-2 bg-gray-900 text-white rounded-xl font-bold text-xs hover:bg-black transition-all">
-                            Filter
-                        </button>
-                    </form>
+                    </div>
                 </header>
 
+                {/* Latest 10 Entries Carousel */}
+                <section>
+                    <div className="flex items-center justify-between mb-4 px-1">
+                        <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Latest 10 Entries</h2>
+                    </div>
+                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">
+                        {isLoadingRecent ? (
+                            Array(5).fill(0).map((_, i) => (
+                                <div key={i} className="min-w-[200px] h-[80px] bg-white rounded-2xl border border-gray-100 animate-pulse" />
+                            ))
+                        ) : recentEntries.length > 0 ? (
+                            recentEntries.map((entry, i) => (
+                                <motion.div
+                                    key={entry._id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.05 }}
+                                    onClick={() => setSelectedEntry(entry)}
+                                    className="min-w-[240px] bg-white p-3 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-50 overflow-hidden shrink-0">
+                                            {(entry['Documentation Image'] || entry.imageUrl) ? (
+                                                <img src={entry['Documentation Image'] || entry.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-[10px]">M</div>
+                                            )}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="text-[8px] font-black text-blue-600 uppercase tracking-tight truncate mb-0.5">{entry['Region']}</div>
+                                            <h4 className="text-[11px] font-black text-gray-900 truncate tracking-tight">{entry['Part Name']}</h4>
+                                            <div className="text-[9px] text-gray-400 font-bold truncate">{entry['Code']}</div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className="flex-1 py-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                                No history found
+                            </div>
+                        )}
+                    </div>
+                </section>
+
                 {error && (
-                    <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-red-200">
+                            <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white shrink-0">
                                 <AlertTriangle className="w-5 h-5" />
                             </div>
                             <div>
                                 <div className="text-sm font-black text-red-900 leading-none mb-1">Database Error</div>
-                                <div className="text-[10px] text-red-600 font-medium font-mono line-clamp-1 opacity-80">{error}</div>
+                                <div className="text-[10px] text-red-600 font-medium font-mono truncate max-w-[200px]">{error}</div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => fetchEntries()}
-                            className="px-4 py-2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all active:scale-95 shrink-0"
-                        >
-                            Retry
-                        </button>
+                        <button onClick={() => fetchEntries()} className="px-4 py-2 bg-red-600 text-white text-[10px] font-black uppercase rounded-xl">Retry</button>
                     </div>
                 )}
 
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-gray-400 animate-pulse">
-                        <FileSearch className="w-10 h-10 mb-3" />
-                        <div className="font-bold uppercase tracking-widest text-[10px]">Syncing...</div>
+                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                        <FileSearch className="w-10 h-10 mb-3 animate-bounce" />
+                        <div className="font-black uppercase tracking-widest text-[10px]">Syncing Logs...</div>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left min-w-[600px]">
-                                <thead>
-                                    <tr className="bg-gray-50/50 border-b border-gray-100">
-                                        <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry</th>
-                                        <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Master</th>
-                                        <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Region</th>
-                                        <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {entries.map((entry, i) => (
-                                        <motion.tr
-                                            key={entry._id}
-                                            initial={{ opacity: 0, y: 5 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: i * 0.03 }}
-                                            className="group hover:bg-gray-50/50 transition-colors"
-                                        >
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
-                                                        {(entry['Documentation Image'] || entry.imageUrl) ? (
-                                                            <img src={entry['Documentation Image'] || entry.imageUrl} alt="" className="w-full h-full object-cover" />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-gray-200 font-bold text-[10px]">S</div>
-                                                        )}
+                    <div className="space-y-4">
+                        {/* Desktop Table */}
+                        <div className="hidden md:block bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-gray-50/50 border-b border-gray-100">
+                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Identity & Proof</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Master Classification</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Production Scope</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {entries.map((entry, i) => (
+                                            <motion.tr
+                                                key={entry._id}
+                                                initial={{ opacity: 0, y: 5 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: i * 0.02 }}
+                                                className="group hover:bg-gray-50/50 transition-colors"
+                                            >
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100 group-hover:scale-110 transition-transform">
+                                                            {(entry['Documentation Image'] || entry.imageUrl) ? (
+                                                                <img src={entry['Documentation Image'] || entry.imageUrl} alt="" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-[10px]">M</div>
+                                                            )}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <div className="font-black text-gray-900 text-sm tracking-tight">{entry['Code']}</div>
+                                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter truncate max-w-[200px]">{entry['Specification Details']}</div>
+                                                        </div>
                                                     </div>
-                                                    <div className="min-w-0">
-                                                        <div className="font-bold text-gray-900 text-sm truncate">{entry['Code'] || entry.code}</div>
-                                                        <div className="text-[10px] text-gray-400 line-clamp-1">{entry['Specification Details'] || entry.spec}</div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-xs font-black text-gray-900 tracking-tight">
+                                                        {entry['Car Model']} <span className="text-blue-600">{entry['Variant']}</span>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="text-xs font-bold text-gray-700 truncate">
-                                                    {entry['Car Model'] || entry.carModel || entry.carModelId?.name}
-                                                </div>
-                                                <div className="text-[10px] text-gray-400 truncate">
-                                                    {entry['Variant'] || entry.variant || entry.variantId?.name} • {entry['Part Name'] || entry.partName || entry.partId?.name}
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-[9px] font-black uppercase rounded-md border border-blue-100">
-                                                    {entry['Region'] || entry.region || entry.regionId?.name}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <div className="flex items-center justify-end gap-1 transition-opacity">
-                                                    <button
-                                                        onClick={() => setSelectedEntry(entry)}
-                                                        className="p-1.5 hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-lg transition-all"
-                                                        title="View Details"
-                                                    >
-                                                        <Eye className="w-3.5 h-3.5" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setEditingEntryId(entry._id)}
-                                                        className="p-1.5 hover:bg-amber-50 text-gray-400 hover:text-amber-600 rounded-lg transition-all"
-                                                        title="Edit Entry"
-                                                    >
-                                                        <MoreVertical className="w-3.5 h-3.5" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(entry._id)}
-                                                        className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg transition-all"
-                                                        title="Delete Entry"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </motion.tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">
+                                                        {entry['Part Name']} • {entry['Category']}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
+                                                        {entry['Region']}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button onClick={() => setSelectedEntry(entry)} className="p-2 hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-xl transition-all"><Eye className="w-4 h-4" /></button>
+                                                        <button onClick={() => setEditingEntryId(entry._id)} className="p-2 hover:bg-amber-50 text-gray-400 hover:text-amber-600 rounded-xl transition-all"><MoreVertical className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleDelete(entry._id)} className="p-2 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
+                                                    </div>
+                                                </td>
+                                            </motion.tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Mobile Cards */}
+                        <div className="md:hidden grid grid-cols-1 gap-4">
+                            {entries.map((entry, i) => (
+                                <motion.div
+                                    key={entry._id}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: i * 0.03 }}
+                                    className="bg-white p-4 rounded-[1.5rem] border border-gray-100 shadow-sm space-y-4"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
+                                                {(entry['Documentation Image'] || entry.imageUrl) ? (
+                                                    <img src={entry['Documentation Image'] || entry.imageUrl} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-xs">M</div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{entry['Code']}</div>
+                                                <h3 className="text-sm font-black text-gray-900 tracking-tight">{entry['Part Name']}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <button onClick={() => setSelectedEntry(entry)} className="p-2 bg-gray-50 text-gray-400 rounded-lg"><Eye className="w-4 h-4" /></button>
+                                            <button onClick={() => setEditingEntryId(entry._id)} className="p-2 bg-gray-50 text-gray-400 rounded-lg"><MoreVertical className="w-4 h-4" /></button>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="p-2 bg-gray-50 rounded-xl">
+                                            <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Vehicle</div>
+                                            <div className="text-[10px] font-black text-gray-800 truncate">{entry['Car Model']}</div>
+                                        </div>
+                                        <div className="p-2 bg-gray-50 rounded-xl">
+                                            <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Region</div>
+                                            <div className="text-[10px] font-black text-gray-800 truncate">{entry['Region']}</div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDelete(entry._id)}
+                                        className="w-full py-2 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-red-100"
+                                    >
+                                        Delete Entry
+                                    </button>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
                 )}

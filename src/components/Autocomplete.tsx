@@ -1,43 +1,53 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Check, ChevronsUpDown, Loader2, Plus } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, Plus, History } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { getRecentEntries, saveRecentEntry } from '@/lib/recent-entries';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-interface Option {
-    _id?: string;
-    name: string;
-}
+type Option = any;
 
 interface AutocompleteProps {
-    label: string;
-    placeholder: string;
-    apiUrl: string;
     value: string;
-    onChange: (value: string) => void;
-    extraParams?: Record<string, string>;
+    onChange: (value: string, option?: any) => void;
+    placeholder?: string;
+    label?: string;
     required?: boolean;
+    apiUrl: string;
+    extraParams?: Record<string, string>;
+    onCreateNew?: (name: string) => void;
+    renderOption?: (option: any) => React.ReactNode;
+    className?: string;
 }
 
 export default function Autocomplete({
-    label,
-    placeholder,
-    apiUrl,
     value,
     onChange,
-    extraParams = {},
+    placeholder = "Search...",
+    label,
     required = false,
+    apiUrl,
+    extraParams = {},
+    onCreateNew,
+    renderOption,
+    className
 }: AutocompleteProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState(value);
     const [options, setOptions] = useState<Option[]>([]);
+    const [recentEntries, setRecentEntries] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Load recent entries on mount and whenever label changes
+    useEffect(() => {
+        setRecentEntries(getRecentEntries(label || ''));
+    }, [label]);
 
     // Stringify extraParams for stable dependency check
     const extraParamsString = JSON.stringify(extraParams);
@@ -93,15 +103,23 @@ export default function Autocomplete({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleSelect = (option: string) => {
-        onChange(option);
-        setQuery(option);
+    const handleSelect = (optionName: string, option?: any) => {
+        saveRecentEntry(label || 'Search', optionName);
+        onChange(optionName, option);
+        setQuery(optionName);
         setIsOpen(false);
     };
 
     const normalizedQuery = query.trim().toLowerCase();
-    const exactMatch = Array.isArray(options) ? options.find(o => o.name.toLowerCase() === normalizedQuery) : null;
+    const exactMatch = Array.isArray(options) ? options.find(o => {
+        const optionName = (o.name || o['Code'] || o['Part Name'] || '').toString().toLowerCase();
+        return optionName === normalizedQuery;
+    }) : null;
     const showCreateOption = query.trim().length > 0 && !exactMatch;
+
+    // Determine what to show in the dropdown
+    const showRecent = isOpen && query.trim().length === 0 && recentEntries.length > 0;
+    const showOptions = isOpen && (query.trim().length > 0 || options.length > 0);
 
     return (
         <div className="flex flex-col gap-1.5 w-full relative" ref={containerRef}>
@@ -115,58 +133,99 @@ export default function Autocomplete({
                         "w-full px-3 py-1.5 sm:py-2 bg-white border rounded-lg outline-none transition-all duration-200",
                         "border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10",
                         "placeholder:text-gray-400 text-gray-900 text-xs sm:text-sm",
-                        "hover:border-gray-300"
+                        "hover:border-gray-300 uppercase",
+                        className
                     )}
                     placeholder={placeholder}
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        const val = e.target.value.toUpperCase();
+                        setQuery(val);
                         setIsOpen(true);
                     }}
-                    onFocus={() => setIsOpen(true)}
+                    onFocus={() => {
+                        setIsOpen(true);
+                        // Refresh recent entries on focus
+                        setRecentEntries(getRecentEntries(label || ''));
+                    }}
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-400 pointer-events-none">
                     {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ChevronsUpDown className="w-3 h-3" />}
                 </div>
             </div>
 
-            {isOpen && (query.trim().length > 0 || options.length > 0) && (
-                <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] py-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
-                    {options.length > 0 ? (
-                        <div className="max-h-48 overflow-auto px-1 scrollbar-hide">
-                            {options.map((opt) => (
-                                <button
-                                    key={opt._id || opt.name}
-                                    onClick={() => handleSelect(opt.name)}
-                                    className={cn(
-                                        "w-full flex items-center justify-between px-2.5 py-1.5 text-xs sm:text-sm rounded-lg transition-all text-left mb-0.5",
-                                        "hover:bg-blue-50 hover:text-blue-700",
-                                        value === opt.name ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-700"
-                                    )}
-                                >
-                                    <span className="truncate pr-3">{opt.name}</span>
-                                    {value === opt.name && <Check className="w-3 h-3 flex-shrink-0" />}
-                                </button>
-                            ))}
-                        </div>
-                    ) : !isLoading && !showCreateOption && (
-                        <div className="px-3 py-3 text-[10px] text-gray-400 text-center italic">
-                            No matches
+            {isOpen && (showRecent || showOptions) && (
+                <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.15)] py-1.5 z-[110] animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+                    {showRecent && (
+                        <div className="mb-1">
+                            <div className="px-3 py-1 text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                                <History className="w-2.5 h-2.5" />
+                                Recent Entries
+                            </div>
+                            <div className="max-h-48 overflow-auto px-1 scrollbar-hide">
+                                {recentEntries.map((entry) => (
+                                    <button
+                                        key={`recent-${entry}`}
+                                        onClick={() => handleSelect(entry, entry)}
+                                        className={cn(
+                                            "w-full flex items-center justify-between px-4 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs rounded-lg transition-all text-left mb-0.5 min-h-[44px] sm:min-h-0",
+                                            "hover:bg-blue-50 hover:text-blue-700 active:bg-blue-100",
+                                            value === entry ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-700"
+                                        )}
+                                    >
+                                        <span className="truncate pr-3">{entry}</span>
+                                        {value === entry && <Check className="w-4 h-4 sm:w-3 sm:h-3 flex-shrink-0" />}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
 
-                    {showCreateOption && (
-                        <div className="border-t border-gray-50 mt-1 pt-1 px-1">
-                            <button
-                                onClick={() => handleSelect(query)}
-                                className="w-full flex items-center gap-2 px-2.5 py-2 text-xs text-blue-600 font-bold rounded-lg hover:bg-blue-50 transition-all text-left"
-                            >
-                                <div className="flex-shrink-0 w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center">
-                                    <Plus className="w-4 h-4" />
+                    {showOptions && (
+                        <>
+                            {options.length > 0 ? (
+                                <div className="max-h-48 overflow-auto px-1 scrollbar-hide">
+                                    {options.map((opt, i) => (
+                                        <button
+                                            key={opt._id || i}
+                                            onClick={() => handleSelect(opt.name || opt['Code'] || opt['Part Name'], opt)}
+                                            className={cn(
+                                                "w-full flex items-center justify-between px-4 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs rounded-lg transition-all text-left mb-0.5 min-h-[44px] sm:min-h-0",
+                                                "hover:bg-blue-50 hover:text-blue-700 active:bg-blue-100",
+                                                value === (opt.name || opt['Code'] || opt['Part Name']) ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-700"
+                                            )}
+                                        >
+                                            {renderOption ? (
+                                                renderOption(opt)
+                                            ) : (
+                                                <>
+                                                    <span className="truncate pr-3">{opt.name || opt['Code'] || opt['Part Name']}</span>
+                                                    {value === (opt.name || opt['Code'] || opt['Part Name']) && <Check className="w-4 h-4 sm:w-3 sm:h-3 flex-shrink-0" />}
+                                                </>
+                                            )}
+                                        </button>
+                                    ))}
                                 </div>
-                                <span className="truncate">Create <span className="text-blue-800">"{query}"</span></span>
-                            </button>
-                        </div>
+                            ) : !isLoading && !showCreateOption && (
+                                <div className="px-3 py-3 text-[10px] text-gray-400 text-center italic">
+                                    No matches
+                                </div>
+                            )}
+
+                            {showCreateOption && (
+                                <div className="border-t border-gray-50 mt-1 pt-1 px-1">
+                                    <button
+                                        onClick={() => handleSelect(query)}
+                                        className="w-full flex items-center gap-2 px-2.5 py-2 text-xs text-blue-600 font-bold rounded-lg hover:bg-blue-50 transition-all text-left"
+                                    >
+                                        <div className="flex-shrink-0 w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center">
+                                            <Plus className="w-4 h-4" />
+                                        </div>
+                                        <span className="truncate">Create <span className="text-blue-800">"{query}"</span></span>
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             )}

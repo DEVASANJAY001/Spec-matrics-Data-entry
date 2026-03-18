@@ -38,12 +38,12 @@ const SpecificationSchema = new Schema<ISpecification>({
     'Car Model': { type: String, required: true },
     'Variant': { type: String, required: true },
     'Region': { type: String, required: true },
-    'Code': { type: String, required: true },
+    'Code': { type: String, required: true, index: true },
     'Category': { type: String, required: true },
     'Part Name': { type: String, required: true },
     'Specification Details': { type: String, required: true },
     'Documentation Image': { type: String },
-    createdAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now, index: true },
 });
 
 export default mongoose.models.Specification || mongoose.model<ISpecification>('Specification', SpecificationSchema);

@@ -6,6 +6,7 @@ import Autocomplete from './Autocomplete';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import React, { useState, useEffect, useCallback } from 'react';
+import { saveRecentEntry } from '@/lib/recent-entries';
 
 const INITIAL_FORM_STATE = {
     carModel: '',
@@ -143,6 +144,14 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
             }
 
             toast.success(editId ? 'Updated successfully!' : 'Saved successfully!', { id: loadingToast });
+
+            // Save recent entries
+            saveRecentEntry('Car Model', formData.carModel);
+            saveRecentEntry('Variant', formData.variant);
+            saveRecentEntry('Region', formData.region);
+            saveRecentEntry('Code', formData.code);
+            saveRecentEntry('Category', formData.category);
+            saveRecentEntry('Part Name', formData.partName);
 
             if (!editId) {
                 setFormData(INITIAL_FORM_STATE);
@@ -340,9 +349,9 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
                             <textarea
                                 rows={3}
                                 placeholder="Details..."
-                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-xs sm:text-sm placeholder:text-gray-300 resize-none text-gray-900"
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-xs sm:text-sm placeholder:text-gray-300 resize-none text-gray-900 uppercase"
                                 value={formData.spec}
-                                onChange={(e) => handleInputChange('spec', e.target.value)}
+                                onChange={(e) => handleInputChange('spec', e.target.value.toUpperCase())}
                                 required
                             />
                         </div>

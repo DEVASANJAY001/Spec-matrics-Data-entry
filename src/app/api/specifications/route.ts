@@ -32,8 +32,17 @@ export async function GET(request: Request) {
         if (region) filter['Region'] = region;
         if (code) filter['Code'] = { $regex: code, $options: 'i' };
 
-        const specs = await Specification.find(filter)
-            .sort({ createdAt: -1 })
+        const limitStr = searchParams.get('limit');
+        const limit = limitStr ? parseInt(limitStr, 10) : null;
+
+        let queryBuilder = Specification.find(filter)
+            .sort({ createdAt: -1 });
+
+        if (limit) {
+            queryBuilder = queryBuilder.limit(limit);
+        }
+
+        const specs = await queryBuilder
             .populate('carModelId', 'name')
             .populate('variantId', 'name')
             .populate('regionId', 'name')
