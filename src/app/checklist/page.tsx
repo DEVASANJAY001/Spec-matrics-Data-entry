@@ -507,7 +507,7 @@ export default function ChecklistPage() {
                                                                             className="w-full h-full object-cover group-hover/img:scale-110 transition-transform cursor-zoom-in"
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                window.open(item.image, '_blank');
+                                                                                setFocusedPartIndex(idx);
                                                                             }}
                                                                         />
                                                                     ) : (
@@ -760,9 +760,9 @@ export default function ChecklistPage() {
                                 </div>
                             </div>
 
-                            <div className="flex-1 p-6 flex flex-col items-center justify-center bg-gray-50/50 min-h-[250px] relative overflow-auto">
+                            <div className="flex-1 p-6 flex flex-col items-center justify-center bg-gray-50/50 min-h-[300px] max-h-[50vh] relative overflow-hidden rounded-[2rem] mx-6">
                                 {checklist[focusedPartIndex].image ? (
-                                    <img src={checklist[focusedPartIndex].image} className="w-full h-full object-contain max-h-[40vh]" alt="Part" />
+                                    <img src={checklist[focusedPartIndex].image} className="w-full h-full object-contain" alt="Part" />
                                 ) : (
                                     <div className="flex flex-col items-center justify-center text-gray-300">
                                         <Package className="w-16 h-16 mb-4 opacity-50" />
