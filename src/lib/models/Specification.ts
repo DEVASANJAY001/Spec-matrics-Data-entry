@@ -40,7 +40,7 @@ const SpecificationSchema = new Schema<ISpecification>({
     'Region': { type: String, required: true },
     'Code': { type: String, required: true, index: true },
     'Category': { type: String, required: true },
-    'Part Name': { type: String, required: true },
+    'Part Name': { type: String, required: true, index: true },
     'Specification Details': { type: String, required: true },
     'Documentation Image': { type: String },
     createdAt: { type: Date, default: Date.now, index: true },

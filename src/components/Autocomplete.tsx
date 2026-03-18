@@ -23,6 +23,7 @@ interface AutocompleteProps {
     onCreateNew?: (name: string) => void;
     renderOption?: (option: any) => React.ReactNode;
     className?: string;
+    disabled?: boolean;
 }
 
 export default function Autocomplete({
@@ -35,7 +36,8 @@ export default function Autocomplete({
     extraParams = {},
     onCreateNew,
     renderOption,
-    className
+    className,
+    disabled = false
 }: AutocompleteProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState(value);
@@ -134,23 +136,27 @@ export default function Autocomplete({
                         "border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10",
                         "placeholder:text-gray-400 text-gray-900 text-xs sm:text-sm",
                         "hover:border-gray-300 uppercase",
+                        disabled && "opacity-50 cursor-not-allowed bg-gray-50",
                         className
                     )}
                     placeholder={placeholder}
                     value={query}
+                    disabled={disabled}
                     onChange={(e) => {
+                        if (disabled) return;
                         const val = e.target.value.toUpperCase();
                         setQuery(val);
                         setIsOpen(true);
                     }}
                     onFocus={() => {
+                        if (disabled) return;
                         setIsOpen(true);
                         // Refresh recent entries on focus
                         setRecentEntries(getRecentEntries(label || ''));
                     }}
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-400 pointer-events-none">
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ChevronsUpDown className="w-3 h-3" />}
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : !disabled && <ChevronsUpDown className="w-3 h-3" />}
                 </div>
             </div>
 

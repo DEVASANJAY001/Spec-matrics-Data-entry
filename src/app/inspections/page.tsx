@@ -41,8 +41,6 @@ export default function InspectionsPage() {
         if (isMounted) fetchInspections();
     }, [isMounted]);
 
-    if (!isMounted) return null;
-
     const fetchInspections = async () => {
         setIsLoading(true);
         setError(null);
@@ -189,6 +187,8 @@ export default function InspectionsPage() {
         if (sortBy !== col) return <ChevronUp className="w-3 h-3 text-gray-300" />;
         return sortDir === 'asc' ? <ChevronUp className="w-3 h-3 text-blue-500" /> : <ChevronDown className="w-3 h-3 text-blue-500" />;
     }
+
+    if (!isMounted) return null;
 
     return (
         <main className="min-h-screen bg-[#F8FAFC] py-4 sm:py-8 px-3 sm:px-6 lg:px-8">

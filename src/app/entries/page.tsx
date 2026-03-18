@@ -40,7 +40,6 @@ export default function EntriesPage() {
         }
     }, [isMounted]);
 
-    if (!isMounted) return null;
 
     const fetchRecent = async () => {
         setIsLoadingRecent(true);
@@ -94,6 +93,8 @@ export default function EntriesPage() {
             toast.error(error.message, { id: loadingToast });
         }
     };
+
+    if (!isMounted) return null;
 
     return (
         <main className="min-h-screen bg-[#F8FAFC] py-4 sm:py-8 px-3 sm:px-6 lg:px-8">

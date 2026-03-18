@@ -423,6 +423,7 @@ export default function ChecklistPage() {
                                         value={code}
                                         onChange={setCode}
                                         required
+                                        disabled={!vin || !lcdv}
                                     />
                                 </div>
                             </section>

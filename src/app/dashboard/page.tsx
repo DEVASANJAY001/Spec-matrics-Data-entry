@@ -60,7 +60,6 @@ export default function DashboardPage() {
         if (isMounted) fetchStats();
     }, [isMounted]);
 
-    if (!isMounted) return null;
 
     if (isLoading) return (
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
@@ -114,6 +113,8 @@ export default function DashboardPage() {
         { title: "Today's Inspections", value: data?.stats.todayInspectionCount || 0, icon: ClipboardCheck, color: 'bg-emerald-600' },
         { title: "Avg Insp. Time", value: formatDuration(data?.stats.avgInspectionTime || 0), icon: Clock, color: 'bg-purple-600' },
     ];
+
+    if (!isMounted) return null;
 
     return (
         <main className="min-h-screen bg-[#F8FAFC] py-4 sm:py-8 px-3 sm:px-6 lg:px-8">

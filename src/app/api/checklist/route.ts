@@ -23,7 +23,8 @@ export async function GET(request: Request) {
         const specs = await Specification.find(filter)
             .sort({ 'Part Name': 1 })
             .populate('partId', 'name')
-            .populate('variantId', 'name');
+            .populate('variantId', 'name')
+            .lean();
 
         return NextResponse.json(specs);
     } catch (error: any) {
