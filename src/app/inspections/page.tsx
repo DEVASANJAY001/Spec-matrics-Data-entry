@@ -32,7 +32,16 @@ export default function InspectionsPage() {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
-    useEffect(() => { fetchInspections(); }, []);
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (isMounted) fetchInspections();
+    }, [isMounted]);
+
+    if (!isMounted) return null;
 
     const fetchInspections = async () => {
         setIsLoading(true);

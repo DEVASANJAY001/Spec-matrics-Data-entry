@@ -9,6 +9,7 @@ import {
     Trash2,
     Calendar,
     X,
+    History,
     FileSearch,
     AlertTriangle,
     ClipboardCheck
@@ -16,7 +17,6 @@ import {
 
 import SpecificationForm from '@/components/SpecificationForm';
 import toast, { Toaster } from 'react-hot-toast';
-import { History } from 'lucide-react';
 
 export default function EntriesPage() {
     const [entries, setEntries] = useState<any[]>([]);
@@ -28,10 +28,19 @@ export default function EntriesPage() {
     const [recentEntries, setRecentEntries] = useState<any[]>([]);
     const [isLoadingRecent, setIsLoadingRecent] = useState(true);
 
+    const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
-        fetchEntries();
-        fetchRecent();
+        setIsMounted(true);
     }, []);
+
+    useEffect(() => {
+        if (isMounted) {
+            fetchEntries();
+            fetchRecent();
+        }
+    }, [isMounted]);
+
+    if (!isMounted) return null;
 
     const fetchRecent = async () => {
         setIsLoadingRecent(true);

@@ -22,6 +22,9 @@ interface Stats {
     totalModels: number;
     totalCategories: number;
     totalParts: number;
+    todayVehicleCount: number;
+    todayInspectionCount: number;
+    avgInspectionTime: number;
 }
 
 export default function DashboardPage() {
@@ -48,9 +51,16 @@ export default function DashboardPage() {
         }
     };
 
+    const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
-        fetchStats();
+        setIsMounted(true);
     }, []);
+
+    useEffect(() => {
+        if (isMounted) fetchStats();
+    }, [isMounted]);
+
+    if (!isMounted) return null;
 
     if (isLoading) return (
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
