@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
         const specs = await Specification.find(filter)
             .sort({ 'Part Name': 1 })
-            .select('Part Name Specification Details Documentation Image Code _id')
+            .select({ 'Part Name': 1, 'Specification Details': 1, 'Documentation Image': 1, 'Code': 1 })
             .lean();
 
         return NextResponse.json(specs);
