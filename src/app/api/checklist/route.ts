@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
         const specs = await Specification.find(filter)
             .sort({ 'Part Name': 1 })
-            .select('-__v')
+            .select('Part Name Specification Details Documentation Image Code _id')
             .lean();
 
         return NextResponse.json(specs);

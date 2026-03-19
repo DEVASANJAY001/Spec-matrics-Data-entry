@@ -269,14 +269,23 @@ export default function ChecklistPage() {
                 vin,
                 lcdv,
                 code,
-                items: checklist.map(item => ({
-                    sourceSpecId: item._id,
-                    partName: item.partName,
-                    spec: item.spec,
-                    image: item.image || '',
-                    status: item.status === 'pending' ? 'correct' : item.status,
-                    isCustom: item.isCustom
-                })),
+                items: checklist.map(item => {
+                    // Reduce payload size: Don't send the entire image if it's already a large Base64 string from the database.
+                    // If it's a URL, keep it. If it's a small custom image, keep it.
+                    let imageToSend = item.image || '';
+                    if (!item.isCustom && imageToSend.startsWith('data:image')) {
+                        imageToSend = ''; // The server can reference it via sourceSpecId if needed
+                    }
+
+                    return {
+                        sourceSpecId: item._id,
+                        partName: item.partName,
+                        spec: item.spec,
+                        image: imageToSend,
+                        status: item.status === 'pending' ? 'correct' : item.status,
+                        isCustom: item.isCustom
+                    };
+                }),
                 totalCorrect,
                 totalWrong,
                 wrongPartDetails,

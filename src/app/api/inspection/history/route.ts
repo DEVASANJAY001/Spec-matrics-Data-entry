@@ -8,7 +8,10 @@ export async function GET(request: Request) {
 
         // Fetch all - no sort in DB to avoid Atlas M0 32MB memory limit.
         // Sorting is done in Node.js after fetch.
-        const raw = await Inspection.find({}).lean();
+        // Fetch only necessary fields for the summary table
+        const raw = await Inspection.find({})
+            .select('-items -__v')
+            .lean();
 
         // Sort by createdAt descending in JS
         const inspections = (raw as any[]).sort((a, b) =>
