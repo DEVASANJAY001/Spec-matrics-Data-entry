@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from './Autocomplete';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { saveRecentEntry } from '@/lib/recent-entries';
 
 import { compressImage } from '@/lib/imageCompression';
@@ -31,6 +31,8 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const captureInputRef = useRef<HTMLInputElement>(null);
+    const galleryInputRef = useRef<HTMLInputElement>(null);
 
     // Fetch data if in edit mode
     useEffect(() => {
@@ -227,11 +229,15 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
                                         type="file"
                                         accept="image/*"
                                         capture="environment"
+                                        ref={captureInputRef}
                                         onChange={handleImageChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                        title="Capture Photo"
+                                        className="hidden"
                                     />
-                                    <button type="button" className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all border border-blue-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => captureInputRef.current?.click()}
+                                        className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all border border-blue-100 active:scale-95"
+                                    >
                                         <Camera className="w-3.5 h-3.5" />
                                         Capture
                                     </button>
@@ -242,11 +248,15 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
                                     <input
                                         type="file"
                                         accept="image/*"
+                                        ref={galleryInputRef}
                                         onChange={handleImageChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                        title="Select from Gallery"
+                                        className="hidden"
                                     />
-                                    <button type="button" className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => galleryInputRef.current?.click()}
+                                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100 active:scale-95"
+                                    >
                                         <FileImage className="w-3.5 h-3.5" />
                                         Gallery
                                     </button>

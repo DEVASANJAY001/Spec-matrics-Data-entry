@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
     try {
@@ -15,25 +12,14 @@ export async function POST(request: Request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Create deep path for organization and to prevent storage limits in single folder
-        const timestamp = Date.now();
-        const originalName = file.name.replace(/\s+/g, '-');
-        const filename = `${timestamp}-${originalName}`;
+        // Convert to Base64 Data URI
+        const base64 = buffer.toString('base64');
+        const mimeType = file.type || 'image/jpeg';
+        const dataUri = `data:${mimeType};base64,${base64}`;
 
-        const publicDir = join(process.cwd(), 'public');
-        const uploadDir = join(publicDir, 'uploads');
+        console.log(`[UPLOAD] Converting to Base64 (${Math.round(dataUri.length / 1024)} KB)`);
 
-        if (!existsSync(uploadDir)) {
-            await mkdir(uploadDir, { recursive: true });
-        }
-
-        const path = join(uploadDir, filename);
-        await writeFile(path, buffer);
-
-        const url = `/uploads/${filename}`;
-        console.log(`[UPLOAD] Saved to ${path}, URL: ${url}`);
-
-        return NextResponse.json({ url });
+        return NextResponse.json({ url: dataUri });
     } catch (error: any) {
         console.error('Upload error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });

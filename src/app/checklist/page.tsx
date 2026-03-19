@@ -86,6 +86,8 @@ export default function ChecklistPage() {
     const [isFastMode, setIsFastMode] = useState(false);
     const [inspectionStartTime, setInspectionStartTime] = useState<number | null>(null);
     const lastDurationRef = useRef<number | null>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Master Data Form States (for creating new parts)
     const [newPartImage, setNewPartImage] = useState<string | null>(null);
@@ -98,8 +100,27 @@ export default function ChecklistPage() {
         partName: '',
         spec: ''
     });
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const cameraInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement> | File) => {
+        const file = e instanceof File ? e : e.target.files?.[0];
+        if (file) {
+            const uploadToast = toast.loading('Compressing and uploading...');
+            try {
+                const compressedBlob = await compressImage(file);
+                const formData = new FormData();
+                formData.append('file', compressedBlob, file.name || 'image.jpg');
+
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Upload failed');
+
+                const { url } = await res.json();
+                setNewPartImage(url);
+                toast.success('Image Ready', { id: uploadToast });
+            } catch (error) {
+                toast.error('Upload failed', { id: uploadToast });
+            }
+        }
+    };
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
@@ -169,41 +190,6 @@ export default function ChecklistPage() {
         setChecklist(checklist.filter((_, i) => i !== index));
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement> | File) => {
-        const file = e instanceof File ? e : e.target.files?.[0];
-        if (file) {
-            // Immediate local preview for UX
-            const localReader = new FileReader();
-            localReader.onloadend = () => {
-                setNewPartImage(localReader.result as string);
-            };
-            localReader.readAsDataURL(file);
-
-            // Upload to server
-            const uploadToast = toast.loading('Compressing and uploading image...');
-            try {
-                // Compress image before upload
-                const compressedBlob = await compressImage(file);
-
-                const formData = new FormData();
-                formData.append('file', compressedBlob, file.name || 'image.jpg');
-
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!res.ok) throw new Error('Upload failed');
-
-                const { url } = await res.json();
-                setNewPartImage(url); // This will now be a URL after upload
-                toast.success('Image uploaded!', { id: uploadToast });
-            } catch (error) {
-                console.error('Upload error:', error);
-                toast.error('Failed to upload image', { id: uploadToast });
-            }
-        }
-    };
 
     const handlePaste = useCallback((e: ClipboardEvent) => {
         const items = e.clipboardData?.items;
@@ -1146,6 +1132,8 @@ export default function ChecklistPage() {
                                     setIsSubmitting(false);
                                 }
                             }} className="space-y-10">
+                                <input type="file" ref={cameraInputRef} accept="image/*" capture="environment" className="hidden" onChange={handleImageChange} />
+                                <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageChange} />
                                 <div className="flex items-start gap-4">
                                     <div className="flex-1 flex flex-wrap gap-3">
                                         <button
