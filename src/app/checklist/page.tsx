@@ -32,6 +32,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Autocomplete from '@/components/Autocomplete';
 import { cn } from '@/lib/utils';
 import { saveRecentEntry, getRecentEntries } from '@/lib/recent-entries';
+import { compressImage } from '@/lib/imageCompression';
 
 interface ChecklistItem {
     _id?: string;
@@ -172,10 +173,14 @@ export default function ChecklistPage() {
             localReader.readAsDataURL(file);
 
             // Upload to server
-            const uploadToast = toast.loading('Uploading image...');
+            const uploadToast = toast.loading('Compressing and uploading image...');
             try {
+                // Compress image before upload
+                const compressedBlob = await compressImage(file);
+                const compressedFile = new File([compressedBlob], file.name, { type: 'image/jpeg' });
+
                 const formData = new FormData();
-                formData.append('file', file);
+                formData.append('file', compressedFile);
 
                 const res = await fetch('/api/upload', {
                     method: 'POST',

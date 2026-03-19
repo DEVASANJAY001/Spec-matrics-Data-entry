@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import React, { useState, useEffect, useCallback } from 'react';
 import { saveRecentEntry } from '@/lib/recent-entries';
 
+import { compressImage } from '@/lib/imageCompression';
+
 const INITIAL_FORM_STATE = {
     carModel: '',
     variant: '',
@@ -78,10 +80,14 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
             localReader.readAsDataURL(file);
 
             // Upload to server
-            const uploadToast = toast.loading('Uploading image...');
+            const uploadToast = toast.loading('Compressing and uploading image...');
             try {
+                // Compress image before upload
+                const compressedBlob = await compressImage(file);
+                const compressedFile = new File([compressedBlob], file.name, { type: 'image/jpeg' });
+
                 const formData = new FormData();
-                formData.append('file', file);
+                formData.append('file', compressedFile);
 
                 const res = await fetch('/api/upload', {
                     method: 'POST',
