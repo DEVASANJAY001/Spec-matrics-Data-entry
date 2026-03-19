@@ -193,14 +193,17 @@ export default function ChecklistPage() {
                     body: formData,
                 });
 
-                if (!res.ok) throw new Error('Upload failed');
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Upload failed');
+                }
 
                 const { url } = await res.json();
                 setNewPartImage(url); // This will now be a URL after upload
                 toast.success('Image uploaded!', { id: uploadToast });
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Upload error:', error);
-                toast.error('Failed to upload image', { id: uploadToast });
+                toast.error(`Upload failed: ${error.message}`, { id: uploadToast });
             }
         }
     };
