@@ -43,11 +43,8 @@ export async function GET(request: Request) {
         }
 
         const specs = await queryBuilder
-            .populate('carModelId', 'name')
-            .populate('variantId', 'name')
-            .populate('regionId', 'name')
-            .populate('categoryId', 'name')
-            .populate('partId', 'name');
+            .select('-__v') // Exclude version key
+            .lean();
 
         return NextResponse.json(specs);
     } catch (error: any) {

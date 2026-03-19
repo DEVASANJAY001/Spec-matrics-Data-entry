@@ -46,4 +46,9 @@ const SpecificationSchema = new Schema<ISpecification>({
     createdAt: { type: Date, default: Date.now, index: true },
 });
 
+// Optimization: Compound indices for common search patterns
+SpecificationSchema.index({ carModelId: 1, 'Code': 1 });
+SpecificationSchema.index({ carModelId: 1, 'Variant': 1 });
+SpecificationSchema.index({ 'Part Name': 1, categoryId: 1 });
+
 export default mongoose.models.Specification || mongoose.model<ISpecification>('Specification', SpecificationSchema);

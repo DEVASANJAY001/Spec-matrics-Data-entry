@@ -21,7 +21,10 @@ export async function GET(request: Request) {
             filter.carModelId = carModelId;
         }
 
-        const variants = await Variant.find(filter).limit(10).select('name _id');
+        const variants = await Variant.find(filter)
+            .limit(10)
+            .select('name _id')
+            .lean();
 
         return NextResponse.json(variants);
     } catch (error: any) {

@@ -52,7 +52,7 @@ export default function Autocomplete({
     }, [label]);
 
     // Stringify extraParams for stable dependency check
-    const extraParamsString = JSON.stringify(extraParams);
+    const extraParamsString = React.useMemo(() => JSON.stringify(extraParams), [extraParams]);
 
     const fetchOptions = useCallback(async (searchQuery: string) => {
         if (!searchQuery) {

@@ -22,8 +22,7 @@ export async function GET(request: Request) {
 
         const specs = await Specification.find(filter)
             .sort({ 'Part Name': 1 })
-            .populate('partId', 'name')
-            .populate('variantId', 'name')
+            .select('-__v')
             .lean();
 
         return NextResponse.json(specs);

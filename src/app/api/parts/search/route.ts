@@ -21,7 +21,7 @@ export async function GET(request: Request) {
             filter.categoryId = categoryId;
         }
 
-        const parts = await Part.find(filter).limit(10).select('name _id');
+        const parts = await Part.find(filter).limit(10).select('name _id').lean();
 
         return NextResponse.json(parts);
     } catch (error: any) {

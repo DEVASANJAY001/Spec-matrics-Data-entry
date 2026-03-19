@@ -14,7 +14,7 @@ export async function GET(request: Request) {
         await dbConnect();
         const categories = await Category.find({
             name: { $regex: query, $options: 'i' },
-        }).limit(10).select('name _id');
+        }).limit(10).select('name _id').lean();
 
         return NextResponse.json(categories);
     } catch (error: any) {
