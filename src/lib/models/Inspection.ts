@@ -4,6 +4,7 @@ export interface IInspectionItem {
     partId?: mongoose.Types.ObjectId;
     partName: string;
     spec: string;
+    image?: string;
     status: 'correct' | 'wrong';
     isCustom?: boolean;
 }

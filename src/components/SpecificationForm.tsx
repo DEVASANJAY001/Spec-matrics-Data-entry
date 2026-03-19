@@ -67,16 +67,36 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement> | File) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement> | File) => {
         const file = e instanceof File ? e : e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
-                setPreviewImage(result);
-                handleInputChange('imageUrl', result);
+            // Immediate local preview for UX
+            const localReader = new FileReader();
+            localReader.onloadend = () => {
+                setPreviewImage(localReader.result as string);
             };
-            reader.readAsDataURL(file);
+            localReader.readAsDataURL(file);
+
+            // Upload to server
+            const uploadToast = toast.loading('Uploading image...');
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!res.ok) throw new Error('Upload failed');
+
+                const { url } = await res.json();
+                handleInputChange('imageUrl', url);
+                toast.success('Image uploaded!', { id: uploadToast });
+            } catch (error) {
+                console.error('Upload error:', error);
+                toast.error('Failed to upload image', { id: uploadToast });
+            }
         }
     };
 

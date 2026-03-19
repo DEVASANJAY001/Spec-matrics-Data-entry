@@ -161,14 +161,36 @@ export default function ChecklistPage() {
         setChecklist(checklist.filter((_, i) => i !== index));
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement> | File) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement> | File) => {
         const file = e instanceof File ? e : e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setNewPartImage(reader.result as string);
+            // Immediate local preview for UX
+            const localReader = new FileReader();
+            localReader.onloadend = () => {
+                setNewPartImage(localReader.result as string);
             };
-            reader.readAsDataURL(file);
+            localReader.readAsDataURL(file);
+
+            // Upload to server
+            const uploadToast = toast.loading('Uploading image...');
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!res.ok) throw new Error('Upload failed');
+
+                const { url } = await res.json();
+                setNewPartImage(url); // This will now be a URL after upload
+                toast.success('Image uploaded!', { id: uploadToast });
+            } catch (error) {
+                console.error('Upload error:', error);
+                toast.error('Failed to upload image', { id: uploadToast });
+            }
         }
     };
 
