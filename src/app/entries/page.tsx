@@ -14,9 +14,31 @@ import {
     AlertTriangle,
     ClipboardCheck
 } from 'lucide-react';
-
-import SpecificationForm from '@/components/SpecificationForm';
 import toast, { Toaster } from 'react-hot-toast';
+
+const SafeImage = ({ src, alt, className, fallback, onClick }: { src?: string, alt?: string, className?: string, fallback?: React.ReactNode, onClick?: (e: any) => void }) => {
+    const [error, setError] = useState(!src);
+    const [isLoading, setIsLoading] = useState(true);
+    useEffect(() => setError(!src), [src]);
+    if (error) return <>{fallback}</>;
+    return (
+        <div className={cn("relative", className)}>
+            <img
+                src={src}
+                alt={alt}
+                className={cn(className, isLoading ? "opacity-0" : "opacity-100 transition-opacity duration-300")}
+                onClick={onClick}
+                onLoad={() => setIsLoading(false)}
+                onError={() => setError(true)}
+            />
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default function EntriesPage() {
     const [entries, setEntries] = useState<any[]>([]);
@@ -156,11 +178,11 @@ export default function EntriesPage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-50 overflow-hidden shrink-0">
-                                            {(entry['Documentation Image'] || entry.imageUrl) ? (
-                                                <img src={entry['Documentation Image'] || entry.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-[10px]">M</div>
-                                            )}
+                                            <SafeImage
+                                                src={`/api/specifications/${entry._id}/image`}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                                                fallback={<div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-[10px]">M</div>}
+                                            />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="text-[8px] font-black text-blue-600 uppercase tracking-tight truncate mb-0.5">{entry['Region']}</div>
@@ -224,11 +246,11 @@ export default function EntriesPage() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100 group-hover:scale-110 transition-transform">
-                                                            {(entry['Documentation Image'] || entry.imageUrl) ? (
-                                                                <img src={entry['Documentation Image'] || entry.imageUrl} alt="" className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-[10px]">M</div>
-                                                            )}
+                                                            <SafeImage
+                                                                src={`/api/specifications/${entry._id}/image`}
+                                                                className="w-full h-full object-cover"
+                                                                fallback={<div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-[10px]">M</div>}
+                                                            />
                                                         </div>
                                                         <div className="min-w-0">
                                                             <div className="font-black text-gray-900 text-sm tracking-tight">{entry['Code']}</div>
@@ -276,11 +298,11 @@ export default function EntriesPage() {
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
-                                                {(entry['Documentation Image'] || entry.imageUrl) ? (
-                                                    <img src={entry['Documentation Image'] || entry.imageUrl} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-xs">M</div>
-                                                )}
+                                                <SafeImage
+                                                    src={`/api/specifications/${entry._id}/image`}
+                                                    className="w-full h-full object-cover"
+                                                    fallback={<div className="w-full h-full flex items-center justify-center text-gray-200 font-black text-xs">M</div>}
+                                                />
                                             </div>
                                             <div>
                                                 <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{entry['Code']}</div>
@@ -372,11 +394,11 @@ export default function EntriesPage() {
                             className="relative bg-white w-full max-w-xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
                         >
                             <div className="relative h-48 sm:h-64 bg-gray-50 border-b border-gray-100">
-                                {(selectedEntry['Documentation Image'] || selectedEntry.imageUrl) ? (
-                                    <img src={selectedEntry['Documentation Image'] || selectedEntry.imageUrl} alt="" className="w-full h-full object-contain p-4" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-100 -rotate-6 font-black text-4xl sm:text-6xl tracking-tighter uppercase opacity-40">SPEC MATRIX</div>
-                                )}
+                                <SafeImage
+                                    src={`/api/specifications/${selectedEntry._id}/image`}
+                                    className="w-full h-full object-contain p-4"
+                                    fallback={<div className="w-full h-full flex items-center justify-center text-gray-100 -rotate-6 font-black text-4xl sm:text-6xl tracking-tighter uppercase opacity-40">SPEC MATRIX</div>}
+                                />
                                 <button
                                     onClick={() => setSelectedEntry(null)}
                                     className="absolute top-4 right-4 p-2 bg-black/40 text-white rounded-full hover:bg-black transition-colors backdrop-blur-md"
