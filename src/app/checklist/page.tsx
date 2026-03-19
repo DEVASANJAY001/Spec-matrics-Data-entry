@@ -265,16 +265,13 @@ export default function ChecklistPage() {
                 lcdv,
                 code,
                 items: checklist.map(item => ({
-  sourceSpecId: item._id,
-  partName: item.partName,
-  spec: item.spec,
-  imageUrl:
-    typeof item.image === 'string' && !item.image.startsWith('data:')
-      ? item.image
-      : '',
-  status: item.status === 'pending' ? 'correct' : item.status,
-  isCustom: item.isCustom
-})),
+                    sourceSpecId: item._id,
+                    partName: item.partName,
+                    spec: item.spec,
+                    image: item.image || '',
+                    status: item.status === 'pending' ? 'correct' : item.status,
+                    isCustom: item.isCustom
+                })),
                 totalCorrect,
                 totalWrong,
                 wrongPartDetails,
