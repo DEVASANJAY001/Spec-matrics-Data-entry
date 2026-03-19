@@ -134,7 +134,7 @@ export default function ChecklistPage() {
                             _id: item._id,
                             partName: item['Part Name'] || item.partId?.name || 'Unknown Part',
                             spec: item['Specification Details'] || item.spec || '',
-                            image: item['Documentation Image'] || item.image || '',
+                            image: `/api/specifications/${item._id}/image`,
                             status: 'pending' as const
                         })));
                         setInspectionStartTime(Date.now());
