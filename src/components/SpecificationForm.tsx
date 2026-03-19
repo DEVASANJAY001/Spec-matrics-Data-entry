@@ -84,10 +84,9 @@ export default function SpecificationForm({ editId, onSuccess }: SpecificationFo
             try {
                 // Compress image before upload
                 const compressedBlob = await compressImage(file);
-                const compressedFile = new File([compressedBlob], file.name || 'image.jpg', { type: 'image/jpeg' });
 
                 const formData = new FormData();
-                formData.append('file', compressedFile);
+                formData.append('file', compressedBlob, file.name || 'image.jpg');
 
                 const res = await fetch('/api/upload', {
                     method: 'POST',
