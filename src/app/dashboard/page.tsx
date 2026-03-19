@@ -125,7 +125,7 @@ export default function DashboardPage() {
                         <p className="text-gray-500 text-xs sm:text-sm">Metrics for Spec Matrix infrastructure.</p>
                     </div>
                     <a
-                        href="/"
+                        href="/master"
                         className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-lg shadow-gray-200"
                     >
                         New Spec

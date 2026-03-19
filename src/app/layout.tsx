@@ -23,11 +23,12 @@ export default function RootLayout({
 }>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navLinks = [
+    { name: 'Home', href: '/', icon: LayoutDashboard },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Spec Check List', href: '/checklist', icon: ClipboardCheck },
     { name: 'Inspection Logs', href: '/inspections', icon: History },
     { name: 'Master Data', href: '/entries', icon: FileSearch },
-    { name: 'New Entry', href: '/', icon: PlusCircle },
+    { name: 'New Entry', href: '/master', icon: PlusCircle },
   ];
 
   return (
