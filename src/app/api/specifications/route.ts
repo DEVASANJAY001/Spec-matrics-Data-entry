@@ -43,7 +43,7 @@ export async function GET(request: Request) {
         }
 
         const specs = await queryBuilder
-            .select('-__v -\"Documentation Image\"') // Exclude version key and large image data
+            .select({ '__v': 0, 'Documentation Image': 0 })
             .lean();
 
         return NextResponse.json(specs);
