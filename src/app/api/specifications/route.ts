@@ -43,10 +43,16 @@ export async function GET(request: Request) {
         }
 
         const specs = await queryBuilder
-            .select({ '__v': 0, 'Documentation Image': 0 })
+            .select('-__v') // Just exclude version key for now
             .lean();
 
-        return NextResponse.json(specs);
+        // Remove large image data manually to be safer with field names
+        const sanitizedSpecs = specs.map(spec => {
+            const { 'Documentation Image': _, ...rest } = spec;
+            return rest;
+        });
+
+        return NextResponse.json(sanitizedSpecs);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
