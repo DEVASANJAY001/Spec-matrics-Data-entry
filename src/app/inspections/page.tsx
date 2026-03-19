@@ -106,6 +106,17 @@ export default function InspectionsPage() {
         setSelectedEntry(updated);
     };
 
+    const handleView = async (id: string) => {
+        const t = toast.loading('Loading report details...');
+        try {
+            const res = await fetch(`/api/inspection/${id}`);
+            if (!res.ok) throw new Error('Failed to load details');
+            const data = await res.json();
+            setSelectedEntry(data);
+            toast.dismiss(t);
+        } catch (e: any) { toast.error(e.message, { id: t }); }
+    };
+
     const handleSave = async () => {
         if (!selectedEntry) return;
         setIsSubmitting(true);
@@ -383,7 +394,7 @@ export default function InspectionsPage() {
                                                 </td>
                                                 <td className="px-5 py-3 text-right">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <button onClick={() => setSelectedEntry(entry)}
+                                                        <button onClick={() => handleView(entry._id)}
                                                             className="p-1.5 hover:bg-blue-100 text-gray-400 hover:text-blue-600 rounded-lg transition-all" title="View">
                                                             <Eye className="w-3.5 h-3.5" />
                                                         </button>

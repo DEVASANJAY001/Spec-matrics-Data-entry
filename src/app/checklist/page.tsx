@@ -34,6 +34,13 @@ import { cn } from '@/lib/utils';
 import { saveRecentEntry, getRecentEntries } from '@/lib/recent-entries';
 import { compressImage } from '@/lib/imageCompression';
 
+const SafeImage = ({ src, alt, className, fallback, onClick }: { src?: string, alt?: string, className?: string, fallback?: React.ReactNode, onClick?: (e: any) => void }) => {
+    const [error, setError] = useState(!src);
+    useEffect(() => setError(!src), [src]);
+    if (error) return <>{fallback}</>;
+    return <img src={src} alt={alt} className={className} onClick={onClick} onError={() => setError(true)} />;
+};
+
 interface ChecklistItem {
     _id?: string;
     partName: string;
@@ -536,20 +543,13 @@ export default function ChecklistPage() {
                                                                 </div>
 
                                                                 {/* Image Preview */}
-                                                                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center relative group/img shadow-sm">
-                                                                    {item.image ? (
-                                                                        <img
-                                                                            src={item.image}
-                                                                            alt={item.partName}
-                                                                            className="w-full h-full object-cover group-hover/img:scale-110 transition-transform cursor-zoom-in"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                setFocusedPartIndex(idx);
-                                                                            }}
-                                                                        />
-                                                                    ) : (
-                                                                        <AlertCircle className="w-6 h-6 text-gray-200" />
-                                                                    )}
+                                                                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center relative group/img shadow-sm cursor-pointer" onClick={() => setFocusedPartIndex(idx)}>
+                                                                    <SafeImage
+                                                                        src={item.image}
+                                                                        alt={item.partName}
+                                                                        className="w-full h-full object-cover group-hover/img:scale-110 transition-transform"
+                                                                        fallback={<AlertCircle className="w-6 h-6 text-gray-200" />}
+                                                                    />
                                                                 </div>
 
                                                                 <div className="flex-1 min-w-0">
@@ -797,21 +797,24 @@ export default function ChecklistPage() {
                                 </div>
                             </div>
 
-                            <div className="flex-1 p-6 flex flex-col items-center justify-center bg-gray-50/50 min-h-[300px] max-h-[50vh] relative overflow-hidden rounded-[2rem] mx-6">
-                                {checklist[focusedPartIndex].image ? (
-                                    <img src={checklist[focusedPartIndex].image} className="w-full h-full object-contain" alt="Part" />
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center text-gray-300">
-                                        <Package className="w-16 h-16 mb-4 opacity-50" />
-                                        <p className="text-[10px] font-black uppercase tracking-widest">No Image Available</p>
-                                    </div>
-                                )}
+                            <div className="flex-1 p-6 flex flex-col items-center justify-center bg-gray-50/50 min-h-[150px] sm:min-h-[300px] max-h-[40vh] sm:max-h-[50vh] relative overflow-hidden rounded-[2rem] mx-4 sm:mx-6">
+                                <SafeImage
+                                    src={checklist[focusedPartIndex].image}
+                                    className="w-full h-full object-contain"
+                                    alt="Part"
+                                    fallback={
+                                        <div className="flex flex-col items-center justify-center text-gray-300">
+                                            <Package className="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-4 opacity-50" />
+                                            <p className="text-[10px] font-black uppercase tracking-widest">No Image Available</p>
+                                        </div>
+                                    }
+                                />
                             </div>
 
-                            <div className="p-6 bg-white border-t border-gray-50">
-                                <p className="text-sm font-bold text-gray-600 mb-6 text-center truncate max-w-sm mx-auto">{checklist[focusedPartIndex].spec}</p>
+                            <div className="p-4 sm:p-6 bg-white border-t border-gray-50">
+                                <p className="text-xs sm:text-sm font-bold text-gray-600 mb-4 sm:mb-6 text-center truncate max-w-sm mx-auto">{checklist[focusedPartIndex].spec}</p>
 
-                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                                     <button
                                         onClick={() => {
                                             handleStatusChange(focusedPartIndex, 'correct');
@@ -825,12 +828,12 @@ export default function ChecklistPage() {
                                             }
                                         }}
                                         className={cn(
-                                            "py-4 sm:py-6 rounded-3xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all border-2",
+                                            "py-3 sm:py-6 rounded-3xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all border-2",
                                             checklist[focusedPartIndex].status === 'correct' ? "bg-emerald-50 border-emerald-500 text-emerald-600 shadow-xl shadow-emerald-100 scale-105" : "bg-white border-gray-100 text-gray-400 hover:border-emerald-300 hover:bg-emerald-50/50 hover:scale-[1.02]"
                                         )}
                                     >
-                                        <Check className="w-6 h-6 sm:w-8 sm:h-8" />
-                                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Correct</span>
+                                        <Check className="w-5 h-5 sm:w-8 sm:h-8" />
+                                        <span className="text-[9px] sm:text-xs font-black uppercase tracking-widest">Correct</span>
                                     </button>
                                     <button
                                         onClick={() => {
@@ -845,12 +848,12 @@ export default function ChecklistPage() {
                                             }
                                         }}
                                         className={cn(
-                                            "py-4 sm:py-6 rounded-3xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all border-2",
+                                            "py-3 sm:py-6 rounded-3xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all border-2",
                                             checklist[focusedPartIndex].status === 'wrong' ? "bg-red-50 border-red-500 text-red-600 shadow-xl shadow-red-100 scale-105" : "bg-white border-gray-100 text-gray-400 hover:border-red-300 hover:bg-red-50/50 hover:scale-[1.02]"
                                         )}
                                     >
-                                        <X className="w-6 h-6 sm:w-8 sm:h-8" />
-                                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Wrong</span>
+                                        <X className="w-5 h-5 sm:w-8 sm:h-8" />
+                                        <span className="text-[9px] sm:text-xs font-black uppercase tracking-widest">Wrong</span>
                                     </button>
                                 </div>
 
@@ -955,11 +958,11 @@ export default function ChecklistPage() {
                                             <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-100 flex items-center justify-center text-[8px] sm:text-[9px] font-black text-gray-400 flex-shrink-0">{idx + 1}</div>
 
                                             <div className="w-8 h-8 rounded shrink-0 bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
-                                                {item.image ? (
-                                                    <img src={item.image} className="w-full h-full object-cover" alt="" />
-                                                ) : (
-                                                    <span className="text-[8px] font-black text-gray-300">N/A</span>
-                                                )}
+                                                <SafeImage
+                                                    src={item.image}
+                                                    className="w-full h-full object-cover"
+                                                    fallback={<span className="text-[8px] font-black text-gray-300">N/A</span>}
+                                                />
                                             </div>
 
                                             <div className="flex-1 flex justify-between items-center min-w-0">
@@ -1035,10 +1038,12 @@ export default function ChecklistPage() {
                                     }}
                                     renderOption={(opt) => (
                                         <div className="flex gap-3 py-1">
-                                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
-                                                {opt['Documentation Image'] && (
-                                                    <img src={opt['Documentation Image']} className="w-full h-full object-cover" />
-                                                )}
+                                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                <SafeImage
+                                                    src={opt['Documentation Image']}
+                                                    className="w-full h-full object-cover"
+                                                    fallback={<Package className="w-4 h-4 text-gray-200" />}
+                                                />
                                             </div>
                                             <div className="flex-1 min-w-0 space-y-0.5">
                                                 <div className="text-[11px] font-black text-blue-600 uppercase tracking-tight truncate leading-tight">

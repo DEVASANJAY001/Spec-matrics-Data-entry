@@ -2,12 +2,24 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Inspection from '@/lib/models/Inspection';
 
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params;
+        await dbConnect();
+        const inspection = await Inspection.findById(id).lean();
+        if (!inspection) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        return NextResponse.json(inspection);
+    } catch (e: any) {
+        return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+}
+
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
         await dbConnect();
         const data = await request.json();
-        
+
         // Ensure totals are recalculated if items are provided
         if (data.items) {
             data.totalCorrect = data.items.filter((i: any) => i.status === 'correct').length;

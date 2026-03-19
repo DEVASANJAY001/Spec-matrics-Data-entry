@@ -9,7 +9,7 @@ export async function GET(request: Request, context: any) {
         await dbConnect();
 
         const spec = await Specification.findById(id)
-            .select('Documentation Image')
+            .select({ 'Documentation Image': 1 })
             .lean();
 
         if (!spec) {
