@@ -7,21 +7,16 @@
  * @returns A promise that resolves to the compressed Blob
  */
 export async function compressImage(
-    file: File,
+    file: File | Blob,
     maxWidth: number = 1200,
     maxHeight: number = 1200,
     quality: number = 0.7
 ): Promise<Blob> {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(file);
-        reader.onload = (event) => {
-            const blob = new Blob([event.target?.result as ArrayBuffer], { type: file.type });
-            const url = URL.createObjectURL(blob);
+        try {
+            const url = URL.createObjectURL(file);
             const img = new Image();
-            img.src = url;
             img.onload = () => {
-                URL.revokeObjectURL(url);
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
@@ -35,12 +30,8 @@ export async function compressImage(
                 } else {
                     if (height > maxHeight) {
                         width *= maxHeight / height;
+                        height = maxHeight;
                     }
-                }
-
-                if (height > maxHeight) {
-                    width *= maxHeight / height;
-                    height = maxHeight;
                 }
 
                 canvas.width = width;
@@ -48,17 +39,19 @@ export async function compressImage(
 
                 const ctx = canvas.getContext('2d');
                 if (!ctx) {
+                    URL.revokeObjectURL(url);
                     reject(new Error('Canvas context not available'));
                     return;
                 }
 
-                // Fill white background for transparent images (e.g. PNG) when converting to JPEG
+                // Fill white background for transparent images
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, width, height);
                 ctx.drawImage(img, 0, 0, width, height);
 
                 canvas.toBlob(
                     (compressedBlob) => {
+                        URL.revokeObjectURL(url);
                         if (compressedBlob) {
                             resolve(compressedBlob);
                         } else {
@@ -73,7 +66,9 @@ export async function compressImage(
                 URL.revokeObjectURL(url);
                 reject(err);
             };
-        };
-        reader.onerror = (err) => reject(err);
+            img.src = url;
+        } catch (error) {
+            reject(error);
+        }
     });
 }
