@@ -88,10 +88,10 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] pt-12 sm:pt-20">
+    <main className="min-h-screen bg-[#F8FAFC] py-8 sm:py-16">
       {/* Navigation Grid */}
-      <div className="max-w-5xl mx-auto px-6 lg:px-8 pb-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6">
           {navigations.map((nav, i) => (
             <motion.a
               key={nav.title}
@@ -100,8 +100,8 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              whileHover={{ y: -8 }}
-              className="group relative bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden"
+              whileHover={{ y: -4 }}
+              className="group relative bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden"
             >
               {/* Card Background Accent */}
               <div className={cn(
@@ -109,35 +109,22 @@ export default function Home() {
                 nav.color
               )} />
 
-              <div className="relative z-10">
-                <div className="flex items-start justify-between mb-8">
-                  <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300",
-                    nav.color,
-                    nav.shadow
-                  )}>
-                    <nav.icon className="w-8 h-8" />
-                  </div>
-                  <span className={cn(
-                    "px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border",
-                    nav.bgLight,
-                    nav.textColor,
-                    `border-${nav.color.split('-')[1]}-100`
-                  )}>
-                    {nav.tag}
-                  </span>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className={cn(
+                  "w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg mb-3 transform group-hover:scale-110 transition-all duration-300",
+                  nav.color,
+                  nav.shadow
+                )}>
+                  <nav.icon className="w-6 h-6" />
                 </div>
 
-                <h2 className="text-2xl font-black text-gray-900 mb-3 tracking-tight group-hover:text-blue-600 transition-colors">
+                <h2 className="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors">
                   {nav.title}
                 </h2>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed mb-8">
-                  {nav.description}
-                </p>
 
-                <div className="flex items-center gap-2 text-gray-400 font-black text-[10px] uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors">
-                  <span>Access Module</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
+                <div className="mt-2 flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span>Open</span>
+                  <ChevronRight className="w-2 h-2" />
                 </div>
               </div>
             </motion.a>
