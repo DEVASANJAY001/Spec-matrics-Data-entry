@@ -12,7 +12,13 @@ import {
     History,
     FileSearch,
     AlertTriangle,
-    ClipboardCheck
+    ClipboardCheck,
+    ChevronRight,
+    ChevronDown,
+    Layers,
+    Globe,
+    Car,
+    Hash
 } from 'lucide-react';
 import SpecificationForm from '@/components/SpecificationForm';
 import toast, { Toaster } from 'react-hot-toast';
@@ -51,6 +57,9 @@ export default function EntriesPage() {
     const [error, setError] = useState<string | null>(null);
     const [recentEntries, setRecentEntries] = useState<any[]>([]);
     const [isLoadingRecent, setIsLoadingRecent] = useState(true);
+    const [stats, setStats] = useState<any>({ codes: {}, models: {}, variants: {}, regions: {}, categories: {} });
+    const [activeFilter, setActiveFilter] = useState<string | null>(null);
+    const [expandedStat, setExpandedStat] = useState<string | null>(null);
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
@@ -96,6 +105,38 @@ export default function EntriesPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    useEffect(() => {
+        if (entries.length > 0) {
+            const s = { codes: {}, models: {}, variants: {}, regions: {}, categories: {} } as any;
+            entries.forEach(e => {
+                const code = e['Code'] || 'N/A';
+                const model = e['Car Model'] || 'N/A';
+                const variant = e['Variant'] || 'N/A';
+                const region = e['Region'] || 'N/A';
+                const cat = e['Category'] || 'N/A';
+
+                s.codes[code] = (s.codes[code] || 0) + 1;
+                s.models[model] = (s.models[model] || 0) + 1;
+                s.variants[variant] = (s.variants[variant] || 0) + 1;
+                s.regions[region] = (s.regions[region] || 0) + 1;
+                s.categories[cat] = (s.categories[cat] || 0) + 1;
+            });
+            setStats(s);
+        }
+    }, [entries]);
+
+    const handleStatClick = (type: string, value: string) => {
+        setSearch(value);
+        fetchEntries(value);
+        setActiveFilter(value);
+    };
+
+    const clearFilter = () => {
+        setSearch('');
+        fetchEntries('');
+        setActiveFilter(null);
     };
 
     const handleSearch = (e: React.FormEvent) => {
@@ -157,6 +198,91 @@ export default function EntriesPage() {
                         </div>
                     </div>
                 </header>
+
+                {/* Interactive Summary Dashboard */}
+                <section className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+                    {[
+                        { label: 'Codes', key: 'codes', icon: Hash, color: 'blue' },
+                        { label: 'Models', key: 'models', icon: Car, color: 'emerald' },
+                        { label: 'Variants', key: 'variants', icon: Layers, color: 'amber' },
+                        { label: 'Regions', key: 'regions', icon: Globe, color: 'indigo' },
+                        { label: 'Categories', key: 'categories', icon: ClipboardCheck, color: 'rose' },
+                    ].map((stat) => (
+                        <div key={stat.key} className="flex flex-col gap-2">
+                            <button
+                                onClick={() => setExpandedStat(expandedStat === stat.key ? null : stat.key)}
+                                className={cn(
+                                    "p-4 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all text-left group hover:border-blue-200",
+                                    expandedStat === stat.key && "ring-2 ring-blue-500/10 border-blue-200"
+                                )}
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className={cn("p-2 rounded-xl bg-gray-50 text-gray-400 group-hover:text-blue-600 transition-colors bg-opacity-50",
+                                        stat.color === 'blue' && "text-blue-600",
+                                        stat.color === 'emerald' && "text-emerald-600",
+                                        stat.color === 'amber' && "text-amber-600",
+                                        stat.color === 'indigo' && "text-indigo-600",
+                                        stat.color === 'rose' && "text-rose-600"
+                                    )}>
+                                        <stat.icon className="w-5 h-5" />
+                                    </div>
+                                    {expandedStat === stat.key ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                                </div>
+                                <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</div>
+                                <div className="text-xl font-black text-gray-900 tracking-tight">{Object.keys(stats[stat.key]).length}</div>
+                            </button>
+
+                            <AnimatePresence>
+                                {expandedStat === stat.key && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="bg-white rounded-2xl border border-gray-100 shadow-lg p-2 max-h-48 overflow-y-auto z-10 scrollbar-hide"
+                                    >
+                                        {Object.entries(stats[stat.key]).map(([val, count]: any) => (
+                                            <button
+                                                key={val}
+                                                onClick={() => handleStatClick(stat.key, val)}
+                                                className={cn(
+                                                    "w-full flex items-center justify-between p-2.5 rounded-xl text-[10px] font-bold text-left hover:bg-gray-50 transition-colors uppercase tracking-tight",
+                                                    activeFilter === val ? "bg-blue-50 text-blue-700" : "text-gray-600"
+                                                )}
+                                            >
+                                                <span className="truncate pr-2">{val}</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-gray-100 rounded-md text-[8px] font-black text-gray-500">{count}</span>
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    ))}
+                </section>
+
+                {activeFilter && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex items-center justify-between p-3 bg-blue-600 rounded-2xl shadow-lg border border-blue-500 shadow-blue-100"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/20 rounded-xl">
+                                <Search className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="text-white">
+                                <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Active Filter:</span>
+                                <div className="text-xs font-black uppercase">{activeFilter}</div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={clearFilter}
+                            className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all active:scale-95"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </motion.div>
+                )}
 
                 {/* Latest 10 Entries Carousel */}
                 <section>
@@ -481,6 +607,6 @@ export default function EntriesPage() {
                     </div>
                 )}
             </AnimatePresence>
-        </main>
+        </main >
     );
 }

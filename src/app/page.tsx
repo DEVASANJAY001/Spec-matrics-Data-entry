@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Zap,
   Shield,
-  Database
+  Database,
+  Printer
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -73,6 +74,17 @@ export default function Home() {
       textColor: 'text-amber-700',
       shadow: 'shadow-amber-100',
       tag: 'Admin'
+    },
+    {
+      title: 'Digital Travel Card',
+      description: 'Generate and print professional vehicle inspection cards.',
+      href: '/travel-cards',
+      icon: Printer,
+      color: 'bg-emerald-600',
+      bgLight: 'bg-emerald-50',
+      textColor: 'text-emerald-700',
+      shadow: 'shadow-emerald-100',
+      tag: 'Print'
     },
     {
       title: 'System Dashboard', // Worker friendly

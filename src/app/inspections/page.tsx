@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, Eye, Trash2, Calendar, X, FileSearch, AlertTriangle,
     ClipboardCheck, Check, Loader2, Timer, BarChart2, Car, TrendingUp,
-    TrendingDown, Minus, ChevronUp, ChevronDown, Filter
+    TrendingDown, Minus, ChevronUp, ChevronDown, Filter, Printer
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { cn } from '@/lib/utils';

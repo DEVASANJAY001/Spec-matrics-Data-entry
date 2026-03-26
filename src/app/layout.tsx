@@ -11,7 +11,8 @@ import {
   FileSearch,
   History,
   PlusCircle,
-  ClipboardCheck
+  ClipboardCheck,
+  Printer
 } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,6 +28,7 @@ export default function RootLayout({
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Spec Check List', href: '/checklist', icon: ClipboardCheck },
     { name: 'Inspection Logs', href: '/inspections', icon: History },
+    { name: 'Travel Card', href: '/travel-cards', icon: Printer },
     { name: 'Master Data', href: '/entries', icon: FileSearch },
     { name: 'New Entry', href: '/master', icon: PlusCircle },
   ];
@@ -134,19 +136,6 @@ export default function RootLayout({
                   ))}
                 </div>
 
-                <div className="absolute bottom-10 left-6 right-6">
-                  <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                      Session Identity
-                    </div>
-                    <div className="text-sm font-black text-gray-900 mb-0.5">
-                      Admin User
-                    </div>
-                    <div className="text-[10px] text-blue-600 font-bold">
-                      Standard Access Level
-                    </div>
-                  </div>
-                </div>
               </motion.div>
             </>
           )}

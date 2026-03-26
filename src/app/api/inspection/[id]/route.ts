@@ -1,13 +1,25 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Inspection from '@/lib/models/Inspection';
+import Specification from '@/lib/models/Specification';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
         await dbConnect();
-        const inspection = await Inspection.findById(id).lean();
+        const inspection: any = await Inspection.findById(id).lean();
         if (!inspection) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+        // Fallback: If metadata is missing, look it up from Specifications using the code
+        if (!inspection.carModel || !inspection.variant || !inspection.region) {
+            const spec = await Specification.findOne({ 'Code': inspection.code }).lean();
+            if (spec) {
+                inspection.carModel = inspection.carModel || spec['Car Model'];
+                inspection.variant = inspection.variant || spec['Variant'];
+                inspection.region = inspection.region || spec['Region'];
+            }
+        }
+
         return NextResponse.json(inspection);
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });

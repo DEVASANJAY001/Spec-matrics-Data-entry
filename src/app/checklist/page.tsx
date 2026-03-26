@@ -63,6 +63,9 @@ export default function ChecklistPage() {
     // Vehicle Info
     const [vin, setVin] = useState('');
     const [lcdv, setLcdv] = useState('');
+    const [carModel, setCarModel] = useState('');
+    const [variant, setVariant] = useState('');
+    const [region, setRegion] = useState('');
     const [code, setCode] = useState('');
 
     // Checklist State
@@ -158,6 +161,11 @@ export default function ChecklistPage() {
                     const res = await fetch(`/api/checklist?code=${encodeURIComponent(code)}`);
                     const data = await res.json();
                     if (Array.isArray(data)) {
+                        if (data.length > 0) {
+                            setCarModel(data[0]['Car Model'] || '');
+                            setVariant(data[0]['Variant'] || '');
+                            setRegion(data[0]['Region'] || '');
+                        }
                         setChecklist(data.map(item => ({
                             _id: item._id,
                             partName: item['Part Name'] || item.partId?.name || 'Unknown Part',
@@ -260,6 +268,9 @@ export default function ChecklistPage() {
             const payload = {
                 vin,
                 lcdv,
+                carModel,
+                variant,
+                region,
                 code,
                 items: checklist.map(item => {
                     // Reduce payload size: Don't send the entire image if it's already a large Base64 string from the database.
@@ -303,6 +314,9 @@ export default function ChecklistPage() {
             if (next) {
                 setVin('');
                 setLcdv('');
+                setCarModel('');
+                setVariant('');
+                setRegion('');
                 setCode('');
                 setChecklist([]);
                 setSummary('');

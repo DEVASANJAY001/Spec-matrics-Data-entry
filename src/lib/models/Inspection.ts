@@ -12,6 +12,8 @@ export interface IInspectionItem {
 export interface IInspection extends Document {
     vin: string;
     lcdv: string;
+    variant: string;
+    region: string;
     carModel?: string;
     code: string;
     inspector: string;
@@ -32,6 +34,8 @@ export interface IInspection extends Document {
 const InspectionSchema = new Schema<IInspection>({
     vin: { type: String, required: true, index: true },
     lcdv: { type: String, required: true },
+    variant: { type: String },
+    region: { type: String },
     carModel: { type: String },
     code: { type: String, required: true, index: true },
     inspector: { type: String },
