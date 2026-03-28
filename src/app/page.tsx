@@ -14,7 +14,8 @@ import {
   Zap,
   Shield,
   Database,
-  Printer
+  Printer,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -96,6 +97,39 @@ export default function Home() {
       textColor: 'text-rose-700',
       shadow: 'shadow-rose-100',
       tag: 'Stats'
+    },
+    {
+      title: 'Compress Utility',
+      description: 'Optimize system performance by compressing database images.',
+      href: '/admin/compress',
+      icon: Shield,
+      color: 'bg-slate-600',
+      bgLight: 'bg-slate-50',
+      textColor: 'text-slate-700',
+      shadow: 'shadow-slate-100',
+      tag: 'Admin'
+    },
+    {
+      title: 'Transfer Part',
+      description: 'Copy or move part specifications between different car codes.',
+      href: '/admin/transfer',
+      icon: Zap,
+      color: 'bg-blue-600',
+      bgLight: 'bg-blue-50',
+      textColor: 'text-blue-700',
+      shadow: 'shadow-blue-100',
+      tag: 'Tools'
+    },
+    {
+      title: 'System Trash',
+      description: 'Recover or permanently delete removed system records.',
+      href: '/trash',
+      icon: Trash2,
+      color: 'bg-red-600',
+      bgLight: 'bg-red-50',
+      textColor: 'text-red-700',
+      shadow: 'shadow-red-200',
+      tag: 'System'
     }
   ];
 

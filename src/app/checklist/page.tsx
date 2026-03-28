@@ -195,6 +195,8 @@ export default function ChecklistPage() {
     };
 
     const handleRemoveItem = (index: number) => {
+        const item = checklist[index];
+        if (!confirm(`Are you sure you want to remove "${item.partName}" from this checklist? This cannot be undone.`)) return;
         setChecklist(checklist.filter((_, i) => i !== index));
     };
 

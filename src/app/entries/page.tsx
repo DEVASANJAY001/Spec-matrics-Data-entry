@@ -159,6 +159,22 @@ export default function EntriesPage() {
         }
     };
 
+    const handleDeleteCode = async (code: string) => {
+        const count = stats.codes[code] || 0;
+        if (!confirm(`WARNING: This will delete ALL ${count} specifications and parts for car code "${code}". [${count} parts will be removed]. Are you sure you want to continue?`)) return;
+
+        const loadingToast = toast.loading(`Deleting all ${count} entries for ${code}...`);
+        try {
+            const res = await fetch(`/api/specifications/bulk-delete?code=${encodeURIComponent(code)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to delete code');
+            toast.success(data.message || `Deleted ${data.deletedCount} entries`, { id: loadingToast });
+            clearFilter();
+        } catch (error: any) {
+            toast.error(error.message, { id: loadingToast });
+        }
+    };
+
     if (!isMounted) return null;
 
     return (
@@ -275,12 +291,22 @@ export default function EntriesPage() {
                                 <div className="text-xs font-black uppercase">{activeFilter}</div>
                             </div>
                         </div>
-                        <button
-                            onClick={clearFilter}
-                            className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all active:scale-95"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handleDeleteCode(activeFilter)}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-red-200"
+                                title={`Delete all entries for ${activeFilter}`}
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Code
+                            </button>
+                            <button
+                                onClick={clearFilter}
+                                className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all active:scale-95"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
                     </motion.div>
                 )}
 

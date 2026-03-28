@@ -86,6 +86,8 @@ export async function PUT(
     }
 }
 
+import Trash from '@/lib/models/Trash';
+
 export async function DELETE(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -93,9 +95,23 @@ export async function DELETE(
     try {
         const { id } = await params;
         await dbConnect();
-        const deletedSpec = await Specification.findByIdAndDelete(id);
-        if (!deletedSpec) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-        return NextResponse.json({ message: 'Deleted successfully' });
+
+        const spec = await Specification.findById(id);
+        if (!spec) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+        // Move to Trash
+        await Trash.create({
+            originalId: spec._id,
+            collectionName: 'specifications',
+            data: spec.toObject(),
+            type: 'Master',
+            identifier: spec['Code'] || 'Unknown',
+            deletedAt: new Date()
+        });
+
+        await Specification.findByIdAndDelete(id);
+
+        return NextResponse.json({ message: 'Moved to trash successfully' });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

@@ -48,15 +48,31 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 }
 
+import Trash from '@/lib/models/Trash';
+
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
         await dbConnect();
-        const inspection = await Inspection.findByIdAndDelete(id);
+
+        const inspection = await Inspection.findById(id);
         if (!inspection) {
             return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
         }
-        return NextResponse.json({ message: 'Inspection deleted successfully' });
+
+        // Move to Trash
+        await Trash.create({
+            originalId: inspection._id,
+            collectionName: 'inspections',
+            data: inspection.toObject(),
+            type: 'Log',
+            identifier: `${inspection.vin}:${inspection.code}`,
+            deletedAt: new Date()
+        });
+
+        await Inspection.findByIdAndDelete(id);
+
+        return NextResponse.json({ message: 'Inspection moved to trash' });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
