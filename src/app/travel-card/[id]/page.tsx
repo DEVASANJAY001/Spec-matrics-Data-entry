@@ -234,7 +234,7 @@ export default function DigitalTravelCard() {
                                         ) : (
                                             <div className="flex flex-col items-center">
                                                 <div className="w-5 h-5 border-2 border-gray-900 flex items-center justify-center text-[13px] font-[900] leading-none mb-0.5">X</div>
-                                                <span className="text-[8px] font-black text-gray-900 uppercase">NO</span>
+                                                <span className="text-[8px] font-black text-gray-900 uppercase">NOT OK</span>
                                             </div>
                                         )}
                                     </div>
@@ -261,7 +261,7 @@ export default function DigitalTravelCard() {
                         <div className="text-[7px] font-black uppercase tracking-widest text-gray-400">Quality Summary</div>
                         <div className="flex gap-10">
                             <div className="text-xs font-black text-gray-900">TOTAL OK: <span className="underline decoration-black decoration-2 underline-offset-4 px-1">{inspection.totalCorrect}</span></div>
-                            <div className="text-xs font-black text-gray-900">TOTAL NO: <span className="underline decoration-black decoration-2 underline-offset-4 px-1">{inspection.totalWrong}</span></div>
+                            <div className="text-xs font-black text-gray-900">TOTAL NOT OK: <span className="underline decoration-black decoration-2 underline-offset-4 px-1">{inspection.totalWrong}</span></div>
                         </div>
                     </div>
                     <div className="p-2 flex flex-col justify-between h-14">
