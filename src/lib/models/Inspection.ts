@@ -58,7 +58,7 @@ const InspectionSchema = new Schema<IInspection>({
     startedAt: { type: Date },
     endedAt: { type: Date },
     createdAt: { type: Date, default: Date.now, index: true },
-});
+}, { timestamps: true });
 
 // Compound index for dashboard today stats query (most frequent)
 InspectionSchema.index({ createdAt: -1 });

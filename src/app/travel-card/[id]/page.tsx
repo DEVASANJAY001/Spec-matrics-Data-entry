@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Printer, ArrowLeft } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import Barcode from 'react-barcode';
 
 interface InspectionItem {
     partName: string;
@@ -117,12 +119,46 @@ export default function DigitalTravelCard() {
                     <div className="w-1/4 p-2 flex items-center justify-center border-r-2 border-gray-900 py-6">
                         <img src="/citroen-logo.png" alt="Citroën" className="h-32 object-contain" />
                     </div>
-                    <div className="flex-1 p-2 flex flex-col items-center justify-center">
-                        <h2 className="text-4xl font-black tracking-[0.2em] text-gray-900 uppercase">Travel Card</h2>
+                    <div className="flex-1 flex flex-col border-r-2 border-gray-900">
+                        <div className="h-12 p-2 flex items-center justify-center border-b-2 border-gray-900 bg-gray-50/50">
+                            <h2 className="text-3xl font-black tracking-[0.4em] text-gray-900 uppercase">Travel Card</h2>
+                        </div>
+                        <div className="flex-1 flex divide-x-2 divide-gray-900 min-h-[96px]">
+                            <div className="w-[120px] flex flex-col items-center justify-center p-2 shrink-0">
+                                <QRCodeSVG
+                                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/travel-card/${id}`}
+                                    size={64}
+                                    level="H"
+                                />
+                                <span className="text-[5px] font-black text-gray-400 uppercase mt-2 tracking-widest text-center">Digital Card QR</span>
+                            </div>
+                            <div className="flex-1 flex flex-col items-center justify-center p-1 px-3 overflow-hidden">
+                                <Barcode
+                                    value={inspection.vin}
+                                    width={1.1}
+                                    height={38}
+                                    fontSize={8}
+                                    margin={0}
+                                    background="transparent"
+                                />
+                                <span className="text-[5px] font-black text-gray-400 uppercase mt-1 tracking-widest">VIN Barcode</span>
+                            </div>
+                            <div className="flex-1 flex flex-col items-center justify-center p-1 px-3 overflow-hidden">
+                                <Barcode
+                                    value={inspection.lcdv}
+                                    width={1.1}
+                                    height={38}
+                                    fontSize={8}
+                                    margin={0}
+                                    background="transparent"
+                                />
+                                <span className="text-[5px] font-black text-gray-400 uppercase mt-1 tracking-widest">LCDV Barcode</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="w-1/4 p-2 flex flex-col items-center justify-center border-l-2 border-gray-900 text-right">
-                        <div className="text-[8px] font-bold text-gray-400 mb-1 italic">DOC No: (PAIPL/QCP/TC-02)</div>
-                        <img src="/stellantis-logo.png" alt="Stellantis" className="h-12 object-contain" />
+                    <div className="w-1/4 p-2 flex flex-col items-center justify-center text-right space-y-3">
+                        <div className="text-[8px] font-bold text-gray-400 italic">DOC No: (PAIPL/QCP/TC-02)</div>
+                        <img src="/stellantis-logo.png" alt="Stellantis" className="h-10 object-contain" />
                     </div>
                 </div>
 
@@ -130,27 +166,27 @@ export default function DigitalTravelCard() {
                 <div className="grid grid-cols-6 border-b-2 border-gray-900 text-[10px] font-black uppercase tracking-wider">
                     <div className="p-2 border-r-2 border-gray-900 flex flex-col justify-center">
                         <span className="text-[7px] text-gray-400 mb-0.5">VIN NO :</span>
-                        <span className="text-gray-900 truncate">{inspection.vin}</span>
+                        <span className="text-gray-900 break-all">{inspection.vin}</span>
                     </div>
                     <div className="p-2 border-r-2 border-gray-900 flex flex-col justify-center">
                         <span className="text-[7px] text-gray-400 mb-0.5">LCDV :</span>
-                        <span className="text-gray-900 truncate">{inspection.lcdv}</span>
+                        <span className="text-gray-900 break-all">{inspection.lcdv}</span>
                     </div>
                     <div className="p-2 border-r-2 border-gray-900 flex flex-col justify-center">
                         <span className="text-[7px] text-gray-400 mb-0.5">CAR MODEL :</span>
-                        <span className="text-gray-900 truncate">{inspection.carModel || '-'}</span>
+                        <span className="text-gray-900 break-words">{inspection.carModel || '-'}</span>
                     </div>
                     <div className="p-2 border-r-2 border-gray-900 flex flex-col justify-center">
                         <span className="text-[7px] text-gray-400 mb-0.5">VARIANT :</span>
-                        <span className="text-gray-900 truncate">{inspection.variant || '-'}</span>
+                        <span className="text-gray-900 break-words">{inspection.variant || '-'}</span>
                     </div>
                     <div className="p-2 border-r-2 border-gray-900 flex flex-col justify-center">
                         <span className="text-[7px] text-gray-400 mb-0.5">REGION :</span>
-                        <span className="text-gray-900 truncate">{inspection.region || '-'}</span>
+                        <span className="text-gray-900 break-words">{inspection.region || '-'}</span>
                     </div>
                     <div className="p-2 flex flex-col justify-center">
                         <span className="text-[7px] text-gray-400 mb-0.5">CODE :</span>
-                        <span className="text-gray-900 truncate">{inspection.code || '-'}</span>
+                        <span className="text-gray-900 break-words">{inspection.code || '-'}</span>
                     </div>
                 </div>
 
@@ -207,7 +243,7 @@ export default function DigitalTravelCard() {
                             <th className="p-1 w-24">REMARK</th>
                         </tr>
                     </thead>
-                    <tbody className="text-[8px] font-black">
+                    <tbody className="text-xs font-black">
                         {inspection.items.map((item, idx) => (
                             <tr key={idx} className="border-b border-gray-900 h-11 overflow-hidden">
                                 <td className="p-1 border-r border-gray-900 text-center text-gray-900 font-black">{idx + 1}</td>
@@ -221,8 +257,8 @@ export default function DigitalTravelCard() {
                                     </div>
                                 </td>
                                 <td className="p-1 border-r border-gray-900">
-                                    <div className="text-gray-900 uppercase leading-tight font-black">{item.partName}</div>
-                                    <div className="text-[6px] text-gray-500 font-bold leading-none truncate">{item.spec}</div>
+                                    <div className="text-gray-900 uppercase leading-tight font-black text-[12px]">{item.partName}</div>
+                                    <div className="text-[10px] text-gray-500 font-bold leading-tight">{item.spec}</div>
                                 </td>
                                 <td className="p-1 border-r border-gray-900">
                                     <div className="flex flex-col items-center justify-center h-full">
@@ -288,22 +324,33 @@ export default function DigitalTravelCard() {
             <style jsx global>{`
                 @media print {
                     @page {
-                        size: A4;
-                        margin: 0.5cm;
+                        size: A4 portrait;
+                        margin: 0;
                     }
                     body {
                         background: white !important;
                         color: black !important;
+                        margin: 0;
+                        padding: 0;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
                     .print\\:hidden {
                         display: none !important;
                     }
                     #printable-card {
-                        width: 100% !important;
+                        width: 210mm !important;
+                        min-height: 297mm !important;
                         max-width: none !important;
                         margin: 0 !important;
                         box-shadow: none !important;
                         border: none !important;
+                        border-radius: 0 !important;
+                    }
+                    /* Ensure all borders and backgrounds are visible */
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
                 }
             `}</style>

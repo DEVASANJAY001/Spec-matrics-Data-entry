@@ -567,7 +567,7 @@ export default function ChecklistPage() {
                                                                         )}
                                                                     </div>
                                                                     <div className={cn(
-                                                                        "text-[11px] sm:text-xs font-bold truncate opacity-60",
+                                                                        "text-[11px] sm:text-xs font-bold opacity-70",
                                                                         item.status === 'correct' ? "text-emerald-700" :
                                                                             item.status === 'wrong' ? "text-red-700" : "text-gray-500"
                                                                     )}>
@@ -778,7 +778,7 @@ export default function ChecklistPage() {
                                         {focusedPartIndex + 1}/{checklist.length}
                                     </div>
                                     <div>
-                                        <h3 className="font-black text-gray-900 text-sm md:text-lg tracking-tight truncate max-w-[200px]">{checklist[focusedPartIndex].partName}</h3>
+                                        <h3 className="font-black text-gray-900 text-sm md:text-lg tracking-tight">{checklist[focusedPartIndex].partName}</h3>
                                         {checklist[focusedPartIndex].isCustom && <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Added Part</span>}
                                     </div>
                                 </div>
@@ -813,7 +813,7 @@ export default function ChecklistPage() {
                             </div>
 
                             <div className="p-4 sm:p-6 bg-white border-t border-gray-50">
-                                <p className="text-xs sm:text-sm font-bold text-gray-600 mb-4 sm:mb-6 text-center truncate max-w-sm mx-auto">{checklist[focusedPartIndex].spec}</p>
+                                <p className="text-xs sm:text-sm font-bold text-gray-600 mb-4 sm:mb-6 text-center max-w-sm mx-auto">{checklist[focusedPartIndex].spec}</p>
 
                                 <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                                     <button

@@ -46,7 +46,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased selection:bg-blue-100 selection:text-blue-900`}
       >
-        <nav className="sticky top-0 z-[60] w-full border-b border-gray-100 bg-white/80 backdrop-blur-xl">
+        <nav className="sticky top-0 z-[60] w-full border-b border-gray-100 bg-white/80 backdrop-blur-xl print:hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
               <div className="flex items-center gap-8">

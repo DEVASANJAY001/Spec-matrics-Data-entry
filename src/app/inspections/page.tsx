@@ -119,6 +119,7 @@ export default function InspectionsPage() {
 
     const handleSave = async () => {
         if (!selectedEntry) return;
+        if (!confirm('Are you sure you want to save these changes?')) return;
         setIsSubmitting(true);
         const t = toast.loading('Saving...');
         try {
@@ -390,17 +391,23 @@ export default function InspectionsPage() {
                                                 </td>
                                                 <td className="px-5 py-3">
                                                     <div className="text-xs font-bold text-gray-800">{new Date(entry.createdAt).toLocaleDateString()}</div>
-                                                    <div className="text-[10px] text-gray-400">{new Date(entry.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                    <div className="text-[10px] text-gray-400 font-medium">
+                                                        {new Date(entry.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                    {entry.updatedAt && new Date(entry.updatedAt).getTime() - new Date(entry.createdAt).getTime() > 1000 && (
+                                                        <div className="mt-1.5 flex flex-col gap-0.5">
+                                                            <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-1 py-0.5 rounded border border-amber-100 w-fit">Edited</span>
+                                                            <span className="text-[8px] text-gray-400 font-bold">
+                                                                {new Date(entry.updatedAt).toLocaleDateString()} {new Date(entry.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td className="px-5 py-3 text-right">
                                                     <div className="flex items-center justify-end gap-1">
                                                         <button onClick={() => handleView(entry._id)}
                                                             className="p-1.5 hover:bg-blue-100 text-gray-400 hover:text-blue-600 rounded-lg transition-all" title="View">
                                                             <Eye className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button onClick={() => handleDelete(entry._id)}
-                                                            className="p-1.5 hover:bg-red-100 text-gray-400 hover:text-red-600 rounded-lg transition-all" title="Delete">
-                                                            <Trash2 className="w-3.5 h-3.5" />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -442,8 +449,11 @@ export default function InspectionsPage() {
                             <div className="p-5 border-b border-gray-100 bg-gray-900 text-white flex justify-between items-start shrink-0">
                                 <div>
                                     <h3 className="text-lg font-black tracking-tight">Inspection Report</h3>
-                                    <div className="text-[10px] text-gray-400 mt-1 flex items-center gap-3">
+                                    <div className="text-[10px] text-gray-400 mt-1 flex flex-wrap items-center gap-3">
                                         <span><Calendar className="w-3 h-3 inline mr-1" />{new Date(selectedEntry.createdAt).toLocaleString()}</span>
+                                        {selectedEntry.updatedAt && (
+                                            <span className="text-gray-300">| Last Edited: {new Date(selectedEntry.updatedAt).toLocaleString()}</span>
+                                        )}
                                         {selectedEntry.duration > 0 && (
                                             <span className="bg-gray-800 text-gray-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
                                                 <Timer className="w-3 h-3" /> {formatDuration(selectedEntry.duration)}

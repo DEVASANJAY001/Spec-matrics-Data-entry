@@ -293,14 +293,6 @@ export default function EntriesPage() {
                         </div>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={() => handleDeleteCode(activeFilter)}
-                                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-red-200"
-                                title={`Delete all entries for ${activeFilter}`}
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                Delete Code
-                            </button>
-                            <button
                                 onClick={clearFilter}
                                 className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all active:scale-95"
                             >
