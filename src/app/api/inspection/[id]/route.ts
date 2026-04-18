@@ -32,16 +32,27 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         await dbConnect();
         const data = await request.json();
 
+        // Remove timestamps from incoming data to allow Mongoose to manage them
+        delete data.createdAt;
+        delete data.updatedAt;
+
         // Ensure totals are recalculated if items are provided
         if (data.items) {
             data.totalCorrect = data.items.filter((i: any) => i.status === 'correct').length;
             data.totalWrong = data.items.filter((i: any) => i.status === 'wrong').length;
         }
 
-        const inspection = await Inspection.findByIdAndUpdate(id, data, { new: true });
+        const inspection = await Inspection.findById(id);
         if (!inspection) {
             return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
         }
+
+        // Apply updates
+        Object.assign(inspection, data);
+
+        // Save to trigger timestamps
+        await inspection.save();
+
         return NextResponse.json(inspection);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
