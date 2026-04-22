@@ -304,7 +304,7 @@ export default function DigitalTravelCard() {
                         <div className="flex justify-between items-end h-full">
                             <div className="flex flex-col">
                                 <div className="text-[7px] font-black uppercase tracking-widest text-gray-400">Auditor Name</div>
-                                <div className="text-xs font-black text-gray-900 uppercase underline decoration-gray-400 decoration-dotted underline-offset-2">{inspection.inspector || 'VERIF_01'}</div>
+                                <div className="text-xs font-black text-gray-900 uppercase underline decoration-gray-900 decoration-2 underline-offset-4 px-1 bg-slate-50">{inspection.inspector || 'VERIF_01'}</div>
                             </div>
                             <div className="flex flex-col items-end">
                                 <div className="text-[7px] font-black uppercase tracking-widest text-gray-400">Authorized Stamp</div>

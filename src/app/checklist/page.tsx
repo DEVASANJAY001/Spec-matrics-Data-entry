@@ -58,6 +58,7 @@ interface InspectionStats {
 }
 
 export default function ChecklistPage() {
+    const [user, setUser] = useState<any>(null);
     const [view, setView] = useState<'inspect' | 'reports'>('inspect');
 
     // Vehicle Info
@@ -128,6 +129,12 @@ export default function ChecklistPage() {
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
         setIsMounted(true);
+        fetch('/api/auth/me')
+            .then(res => res.json())
+            .then(data => {
+                if (data && !data.error) setUser(data);
+            })
+            .catch(() => { });
     }, []);
 
 
@@ -298,6 +305,7 @@ export default function ChecklistPage() {
                 duration,
                 startedAt,
                 endedAt,
+                inspector: user?.name || 'Worker',
                 date: new Date()
             };
 
@@ -372,7 +380,15 @@ export default function ChecklistPage() {
                 {view === 'inspect' && (
                     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                         <div>
-                            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Inspection</h1>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-3xl font-black text-gray-900 tracking-tight">Inspection</h1>
+                                {user?.name && (
+                                    <div className="px-3 py-1 bg-blue-100/50 border border-blue-200 rounded-lg flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 transition-all">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                                        <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest leading-none">By {user.name}</span>
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">
                                 <span>Master Data Checklist</span>
                                 <span>•</span>
@@ -921,7 +937,7 @@ export default function ChecklistPage() {
 
                             <div className="flex-1 overflow-auto p-4 sm:p-8 space-y-6 sm:space-y-8 bg-gray-50/30">
                                 {/* Vehicle Recap */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 sm:p-6 bg-white rounded-3xl border border-gray-100 shadow-sm">
                                     <div>
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">VIN Number</p>
                                         <p className="font-mono text-xs font-bold text-gray-900">{vin || 'N/A'}</p>
@@ -933,6 +949,10 @@ export default function ChecklistPage() {
                                     <div>
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Vehicle Code</p>
                                         <p className="text-xs font-black text-blue-600">{code || 'N/A'}</p>
+                                    </div>
+                                    <div className="bg-blue-50/30 p-2 rounded-xl border border-blue-50">
+                                        <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Audited By</p>
+                                        <p className="text-xs font-black text-blue-900 uppercase">{user?.name || 'Worker'}</p>
                                     </div>
                                 </div>
 

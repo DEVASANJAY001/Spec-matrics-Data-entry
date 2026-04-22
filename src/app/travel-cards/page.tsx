@@ -170,7 +170,7 @@ export default function TravelCardsListPage() {
                                                 )}>
                                                     {entry.totalWrong === 0 ? 'Passed' : `${entry.totalWrong} Found`}
                                                 </div>
-                                                <span className="text-[9px] font-bold text-gray-400">by {entry.inspector || 'System'}</span>
+                                                <span className="text-[9px] font-bold text-gray-400">Added by {entry.inspector || '—'}</span>
                                             </div>
                                             <div className="flex items-center gap-1 text-[10px] font-black text-gray-300 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">
                                                 <span>Preview</span>

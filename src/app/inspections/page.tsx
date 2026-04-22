@@ -392,7 +392,7 @@ export default function InspectionsPage() {
                                                 <td className="px-5 py-3">
                                                     <div className="text-xs font-bold text-gray-800">{new Date(entry.createdAt).toLocaleDateString()}</div>
                                                     <div className="text-[10px] text-gray-400 font-medium">
-                                                        {new Date(entry.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(entry.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • <span className="font-bold text-blue-600/70">By {entry.inspector || '—'}</span>
                                                     </div>
                                                     {entry.updatedAt && new Date(entry.updatedAt).getTime() - new Date(entry.createdAt).getTime() > 100 && (
                                                         <div className="mt-1.5 flex flex-col gap-0.5">
