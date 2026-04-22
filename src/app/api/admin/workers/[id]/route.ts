@@ -4,7 +4,7 @@ import User from '@/lib/models/User';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/auth';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getSession();
         if (!session || session.user.role !== 'admin') {
@@ -25,7 +25,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getSession();
         if (!session || session.user.role !== 'admin') {
@@ -55,7 +55,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getSession();
         if (!session || session.user.role !== 'admin') {

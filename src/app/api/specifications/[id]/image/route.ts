@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Specification from '@/lib/models/Specification';
 
-export async function GET(request: Request, context: any) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = await context.params;
+        const { id } = await params;
 
         await dbConnect();
 
